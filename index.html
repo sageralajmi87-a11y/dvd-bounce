@@ -3,79 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DVD Bounce Animation</title>
+    <title>Bouncing DVD Logo</title>
     <style>
-        * {
+        /* Black background like a TV screen */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #1a1a1a;
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            background: #000;
-            border: 2px solid #444;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            background-color: #000;
         }
 
-        .dvd-logo {
+        /* The logo container */
+        #dvd-container {
             position: absolute;
-            width: 120px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, #ff0080, #ff8c00);
-            border-radius: 5px;
-            animation: bounce 4s infinite linear;
+            width: 200px; /* Adjust size for mobile */
+            height: 100px;
         }
 
-        @keyframes bounce {
-            0% {
-                transform: translate(0, 0);
-            }
-            25% {
-                transform: translate(680px, 0);
-            }
-            50% {
-                transform: translate(680px, 520px);
-            }
-            75% {
-                transform: translate(0, 520px);
-            }
-            100% {
-                transform: translate(0, 0);
-            }
-        }
-
-        .info {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #888;
-            font-size: 12px;
+        /* The SVG image from the texture source */
+        #dvd-logo {
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="dvd-logo">DVD</div>
-        <div class="info">Press F12 to customize the animation</div>
+
+    <div id="dvd-container">
+        <img id="dvd-logo" src="https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd1.svg" alt="DVD Logo">
     </div>
+
+    <script>
+        const container = document.getElementById('dvd-container');
+        const logo = document.getElementById('dvd-logo');
+        
+        // List of different color textures from the repo
+        const textures = [
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd1.svg',
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd2.svg',
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd3.svg',
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd4.svg',
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd5.svg',
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd6.svg',
+            'https://raw.githubusercontent.com/remarkablemark/Bouncing-DVD-Logo/master/assets/dvd7.svg'
+        ];
+
+        let x = Math.random() * (window.innerWidth - 200);
+        let y = Math.random() * (window.innerHeight - 100);
+        let xSpeed = 3;
+        let ySpeed = 3;
+        let textureIndex = 0;
+
+        function update() {
+            // Move the logo
+            x += xSpeed;
+            y += ySpeed;
+
+            // Check horizontal walls
+            if (x + container.clientWidth >= window.innerWidth || x <= 0) {
+                xSpeed *= -1;
+                changeColor();
+            }
+
+            // Check vertical walls
+            if (y + container.clientHeight >= window.innerHeight || y <= 0) {
+                ySpeed *= -1;
+                changeColor();
+            }
+
+            // Apply positions
+            container.style.left = x + 'px';
+            container.style.top = y + 'px';
+
+            requestAnimationFrame(update);
+        }
+
+        function changeColor() {
+            textureIndex = (textureIndex + 1) % textures.length;
+            logo.src = textures[textureIndex];
+        }
+
+        // Start the animation
+        update();
+
+        // Handle window resizing (mobile rotation)
+        window.addEventListener('resize', () => {
+            x = Math.min(x, window.innerWidth - 200);
+            y = Math.min(y, window.innerHeight - 100);
+        });
+    </script>
 </body>
 </html>
