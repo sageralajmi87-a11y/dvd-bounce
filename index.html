@@ -208,14 +208,15 @@ body { font-family: Arial, sans-serif; font-size:13px; background:#fff; color:#0
 <!-- ═══ API KEY MODAL ═══ -->
 <div id="key-overlay" style="display:none;">
   <div id="key-box">
-    <h2>Enter your OpenAI API Key</h2>
+    <h2>Enter your Groq API Key</h2>
     <p>
-      This site uses <strong>OpenAI GPT-4o mini</strong> to power search results.<br>
+      This site uses <strong>Groq (Llama 3)</strong> to power search results.<br>
       Your key is saved <strong>only in your browser</strong> — never sent anywhere.<br><br>
-      Get a key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a><br>
-      New accounts get <strong>free trial credits</strong> — enough for hundreds of searches.
+      Get a <strong>100% free</strong> key (no credit card ever) at:<br>
+      <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><br><br>
+      Free tier: <strong>14,400 requests/day</strong> — more than enough.
     </p>
-    <input type="password" id="key-input" placeholder="sk-..." autocomplete="off" spellcheck="false">
+    <input type="password" id="key-input" placeholder="gsk_..." autocomplete="off" spellcheck="false">
     <div id="key-error"></div>
     <div id="key-btns">
       <button id="key-save" onclick="saveKey()">Save &amp; Search</button>
@@ -356,7 +357,7 @@ let currentQuery = '';
 let pendingSearch = null; // search queued while waiting for API key
 
 /* ── API KEY MANAGEMENT ─────────────────────────── */
-function getKey() { return localStorage.getItem('openai_key') || ''; }
+function getKey() { return localStorage.getItem('groq_key') || ''; }
 
 function requireKey(cb) {
   if (getKey()) { cb(); return; }
@@ -369,17 +370,17 @@ function requireKey(cb) {
 
 function saveKey() {
   const val = document.getElementById('key-input').value.trim();
-  if (!val.startsWith('sk-')) {
-    document.getElementById('key-error').textContent = 'OpenAI keys start with sk-  —  check and try again.';
+  if (!val.startsWith('gsk_')) {
+    document.getElementById('key-error').textContent = 'Groq keys start with gsk_  —  check and try again.';
     return;
   }
-  localStorage.setItem('openai_key', val);
+  localStorage.setItem('groq_key', val);
   document.getElementById('key-overlay').style.display = 'none';
   if (pendingSearch) { pendingSearch(); pendingSearch = null; }
 }
 
 function changeKey() {
-  localStorage.removeItem('openai_key');
+  localStorage.removeItem('groq_key');
   document.getElementById('key-input').value = '';
   document.getElementById('key-error').textContent = '';
   document.getElementById('key-overlay').style.display = 'flex';
@@ -510,14 +511,14 @@ No markdown, no code fences.`
   };
 
   try {
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
         'Authorization': 'Bearer ' + getKey()
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'llama-3.3-70b-versatile',
         temperature: 0.7,
         max_tokens: 1500,
         messages: [
@@ -527,16 +528,16 @@ No markdown, no code fences.`
       })
     });
 
-    if (r.status === 401) {
-      localStorage.removeItem('openai_key');
+    if (r.status === 401 || r.status === 403) {
+      localStorage.removeItem('groq_key');
       document.getElementById('loading').classList.remove('active');
-      document.getElementById('key-error').textContent = 'Invalid API key — check it at platform.openai.com/api-keys';
+      document.getElementById('key-error').textContent = 'Invalid API key — get a free one at console.groq.com/keys';
       requireKey(() => doSearch(tab));
       return;
     }
     if (!r.ok) {
       const e = await r.text();
-      throw new Error('OpenAI error ' + r.status + ': ' + e);
+      throw new Error('Groq error ' + r.status + ': ' + e);
     }
 
     const d = await r.json();
