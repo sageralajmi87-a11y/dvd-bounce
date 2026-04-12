@@ -4,1548 +4,1141 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexus Search</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --bg2: #111118;
-    --bg3: #17171f;
-    --bg4: #1e1e28;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #e8e8f0;
-    --muted: #888899;
-    --accent: #7c6af7;
-    --accent2: #a78bfa;
-    --accent-glow: rgba(124,106,247,0.15);
-    --green: #34d399;
-    --red: #f87171;
-    --amber: #fbbf24;
-    --cyan: #22d3ee;
-    --font: 'Sora', sans-serif;
-    --mono: 'JetBrains Mono', monospace;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+:root {
+  --bg:      #08080d;
+  --bg2:     #0f0f16;
+  --bg3:     #16161f;
+  --bg4:     #1c1c27;
+  --bg5:     #22222f;
+  --border:  rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --border3: rgba(255,255,255,0.18);
+  --text:    #e4e4ef;
+  --muted:   #7a7a90;
+  --dim:     #4a4a60;
+  --accent:  #6c5ce7;
+  --accent2: #9d8df5;
+  --accent3: #c4b8ff;
+  --glow:    rgba(108,92,231,0.18);
+  --green:   #2dd4a0;
+  --red:     #f07070;
+  --amber:   #f5b942;
+  --font:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+  --ease:    cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
 
-  /* ─── LANDING ─── */
-  #landing {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 2rem;
-    position: relative;
-  }
-  #landing::before {
-    content: '';
-    position: fixed;
-    top: -200px; left: 50%;
-    transform: translateX(-50%);
-    width: 800px; height: 600px;
-    background: radial-gradient(ellipse, rgba(124,106,247,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 3rem;
-  }
-  .logo-icon {
-    width: 52px; height: 52px;
-    background: var(--accent);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
-  }
-  .logo-text {
-    font-size: 2.8rem;
-    font-weight: 700;
-    letter-spacing: -1px;
-    background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .tagline {
-    color: var(--muted);
-    font-size: 1rem;
-    margin-bottom: 2.5rem;
-    letter-spacing: 0.5px;
-  }
-  .search-container {
-    width: 100%;
-    max-width: 660px;
-    position: relative;
-  }
-  .search-box {
-    display: flex;
-    align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 16px;
-    padding: 6px 6px 6px 20px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .search-box:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-  .search-icon { font-size: 18px; margin-right: 12px; color: var(--muted); flex-shrink: 0; }
-  #main-search {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 1.05rem;
-    padding: 10px 0;
-  }
-  #main-search::placeholder { color: var(--muted); }
-  .search-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 22px;
-    font-family: var(--font);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.15s, transform 0.1s;
-    white-space: nowrap;
-  }
-  .search-btn:hover { opacity: 0.9; }
-  .search-btn:active { transform: scale(0.97); }
-  .suggestions-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 1.2rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .suggestion-pill {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 0.82rem;
-    color: var(--muted);
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-  }
-  .suggestion-pill:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+/* TRANSITIONS */
+@keyframes fadeSlideUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideDown   { from{opacity:0;transform:translateY(-100%)} to{opacity:1;transform:translateY(0)} }
+@keyframes resultIn    { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn     { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+@keyframes spin        { to{transform:rotate(360deg)} }
+@keyframes breathe     { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes pulse       { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes blink       { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes gridDrift   { from{transform:translateY(0)} to{transform:translateY(60px)} }
+@keyframes fadeIn      { from{opacity:0} to{opacity:1} }
+@keyframes glow        { 0%,100%{box-shadow:0 0 40px rgba(108,92,231,0.1)} 50%{box-shadow:0 0 80px rgba(108,92,231,0.2)} }
 
-  /* ─── RESULTS PAGE ─── */
-  #results-page {
-    display: none;
-    min-height: 100vh;
-    flex-direction: column;
-  }
-  .top-bar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 24px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .top-logo {
-    display: flex; align-items: center; gap: 10px;
-    text-decoration: none; cursor: pointer;
-    flex-shrink: 0;
-  }
-  .top-logo-icon {
-    width: 34px; height: 34px;
-    background: var(--accent);
-    border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
-  }
-  .top-logo-text {
-    font-size: 1.2rem; font-weight: 700;
-    background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .top-search-wrap {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 12px;
-    padding: 4px 4px 4px 14px;
-    transition: border-color 0.2s;
-    max-width: 700px;
-  }
-  .top-search-wrap:focus-within { border-color: var(--accent); }
-  .top-search-icon { color: var(--muted); font-size: 15px; margin-right: 10px; }
-  #top-search {
-    flex: 1;
-    background: transparent;
-    border: none; outline: none;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 0.95rem;
-    padding: 7px 0;
-  }
-  #top-search::placeholder { color: var(--muted); }
-  .top-search-btn {
-    background: var(--accent);
-    color: #fff; border: none;
-    border-radius: 9px;
-    padding: 8px 16px;
-    font-family: var(--font);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .top-search-btn:hover { opacity: 0.9; }
+.anim-up { animation:fadeSlideUp 0.45s var(--ease) both; }
+.result-anim { animation:resultIn 0.4s var(--ease) both; }
 
-  /* ─── TABS ─── */
-  .tabs-bar {
-    display: flex;
-    gap: 4px;
-    padding: 0 24px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-  }
-  .tab {
-    padding: 12px 18px;
-    font-size: 0.88rem;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s, border-color 0.15s;
-    display: flex; align-items: center; gap: 6px;
-    white-space: nowrap;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+/* ══ SETUP SCREEN ══ */
+#setup-screen {
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:2rem; position:relative;
+}
+#setup-screen::before {
+  content:''; position:fixed; inset:0;
+  background:radial-gradient(ellipse 600px 400px at 50% 20%, rgba(108,92,231,0.1) 0%, transparent 70%),
+             radial-gradient(ellipse 300px 300px at 80% 80%, rgba(45,212,160,0.04) 0%, transparent 60%);
+  pointer-events:none;
+}
+#setup-screen::after {
+  content:''; position:fixed; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;
+  animation:gridDrift 20s linear infinite;
+}
+.setup-card {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:20px; padding:48px 44px;
+  max-width:480px; width:100%;
+  position:relative; z-index:1;
+  animation:scaleIn 0.5s var(--ease) both;
+  animation:glow 4s ease infinite, scaleIn 0.5s var(--ease) both;
+}
+.setup-logo { display:flex; align-items:center; gap:14px; margin-bottom:32px; }
+.logo-mark {
+  width:46px; height:46px; background:var(--accent);
+  border-radius:13px; display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.logo-mark::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,0.22) 0%, transparent 60%);
+}
+.logo-mark svg { width:24px; height:24px; fill:#fff; }
+.logo-name { font-size:1.6rem; font-weight:700; letter-spacing:-0.5px; color:#fff; }
+.setup-heading { font-size:1.22rem; font-weight:600; color:var(--text); margin-bottom:8px; }
+.setup-sub { font-size:0.87rem; color:var(--muted); line-height:1.65; margin-bottom:28px; }
+.setup-label { font-size:0.73rem; font-weight:600; letter-spacing:0.7px; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+.setup-input-wrap { position:relative; margin-bottom:18px; }
+.setup-input {
+  width:100%; background:var(--bg4); border:1px solid var(--border2);
+  border-radius:12px; padding:13px 46px 13px 16px;
+  color:var(--text); font-family:var(--mono); font-size:0.88rem;
+  outline:none; transition:border-color 0.2s, box-shadow 0.2s; letter-spacing:0.3px;
+}
+.setup-input::placeholder { color:var(--dim); }
+.setup-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--glow); }
+.setup-input.err { border-color:var(--red); }
+.eye-btn {
+  position:absolute; right:13px; top:50%; transform:translateY(-50%);
+  background:none; border:none; cursor:pointer; color:var(--muted);
+  display:flex; align-items:center; transition:color 0.15s;
+}
+.eye-btn:hover { color:var(--text); }
+.eye-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; }
+.setup-info {
+  background:rgba(108,92,231,0.07); border:1px solid rgba(108,92,231,0.18);
+  border-radius:10px; padding:12px 14px;
+  font-size:0.82rem; color:var(--accent3); line-height:1.65; margin-bottom:22px;
+}
+.setup-info a { color:var(--accent2); text-decoration:underline; }
+.setup-info code { font-family:var(--mono); font-size:0.82em; }
+.setup-btn {
+  width:100%; background:var(--accent); color:#fff; border:none;
+  border-radius:12px; padding:14px;
+  font-family:var(--font); font-size:0.94rem; font-weight:600;
+  cursor:pointer; transition:opacity 0.15s, transform 0.1s, box-shadow 0.2s;
+  letter-spacing:0.2px;
+}
+.setup-btn:hover { opacity:0.9; box-shadow:0 6px 26px rgba(108,92,231,0.38); }
+.setup-btn:active { transform:scale(0.98); }
+.setup-btn.secondary {
+  background:var(--bg4); color:var(--muted);
+  border:1px solid var(--border2); margin-top:10px;
+}
+.setup-btn.secondary:hover { color:var(--text); box-shadow:none; }
+.setup-error { font-size:0.82rem; color:var(--red); margin-top:10px; display:none; }
+.setup-divider { display:flex; align-items:center; gap:12px; margin:18px 0; }
+.setup-divider::before,.setup-divider::after { content:''; flex:1; height:1px; background:var(--border2); }
+.setup-divider span { font-size:0.77rem; color:var(--dim); }
 
-  /* ─── CONTENT AREA ─── */
-  .content-wrap {
-    display: flex;
-    gap: 24px;
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
+/* ══ LANDING ══ */
+#landing {
+  display:none; flex-direction:column; align-items:center;
+  justify-content:center; min-height:100vh; padding:2rem; position:relative;
+}
+#landing::before {
+  content:''; position:fixed; inset:0;
+  background:radial-gradient(ellipse 700px 500px at 50% 15%, rgba(108,92,231,0.09) 0%, transparent 70%);
+  pointer-events:none;
+}
+.land-logo {
+  display:flex; align-items:center; gap:14px; margin-bottom:2.4rem;
+  animation:fadeSlideUp 0.5s var(--ease) 0.1s both;
+}
+.land-mark {
+  width:52px; height:52px; background:var(--accent); border-radius:15px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+  box-shadow:0 8px 34px rgba(108,92,231,0.42);
+}
+.land-mark::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,0.24) 0%, transparent 60%); }
+.land-mark svg { width:28px; height:28px; fill:#fff; }
+.land-name { font-size:2.6rem; font-weight:700; letter-spacing:-1.5px; color:#fff; }
+.land-tagline {
+  font-size:0.94rem; color:var(--muted); margin-bottom:2.4rem;
+  animation:fadeSlideUp 0.5s var(--ease) 0.2s both;
+}
+.land-wrap {
+  width:100%; max-width:640px; position:relative;
+  animation:fadeSlideUp 0.5s var(--ease) 0.3s both;
+}
+.land-box {
+  display:flex; align-items:center;
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:16px; padding:6px 6px 6px 18px;
+  transition:border-color 0.25s, box-shadow 0.25s;
+}
+.land-box:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px var(--glow), 0 8px 42px rgba(108,92,231,0.13); }
+.si { width:18px; height:18px; stroke:var(--muted); fill:none; stroke-width:2; flex-shrink:0; margin-right:12px; transition:stroke 0.2s; }
+.land-box:focus-within .si { stroke:var(--accent2); }
+#main-search {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--text); font-family:var(--font); font-size:1rem; padding:11px 0;
+}
+#main-search::placeholder { color:var(--muted); }
+.mic-btn {
+  background:transparent; border:none; cursor:pointer; color:var(--muted);
+  padding:8px 10px; border-radius:8px; display:flex; align-items:center;
+  transition:color 0.15s, background 0.15s; flex-shrink:0;
+}
+.mic-btn:hover { color:var(--text); background:var(--bg5); }
+.mic-btn.on { color:var(--red); animation:pulse 1s ease infinite; }
+.mic-btn svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:1.8; }
+.go-btn {
+  background:var(--accent); color:#fff; border:none;
+  border-radius:11px; padding:11px 22px;
+  font-family:var(--font); font-size:0.9rem; font-weight:600;
+  cursor:pointer; transition:opacity 0.15s, box-shadow 0.2s; flex-shrink:0;
+}
+.go-btn:hover { opacity:0.9; box-shadow:0 4px 22px rgba(108,92,231,0.42); }
+.go-btn:active { transform:scale(0.97); }
+.ac-drop {
+  position:absolute; top:calc(100% + 8px); left:0; right:0;
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:14px; overflow:hidden; z-index:500;
+  display:none; box-shadow:0 14px 42px rgba(0,0,0,0.45);
+  animation:fadeSlideUp 0.2s var(--ease) both;
+}
+.ac-drop.open { display:block; }
+.ac-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 16px; cursor:pointer; font-size:0.9rem;
+  color:var(--text); transition:background 0.1s;
+}
+.ac-item:hover { background:var(--bg4); }
+.ac-ic { width:15px; height:15px; stroke:var(--muted); fill:none; stroke-width:1.8; flex-shrink:0; }
+.ac-ic.hist { stroke:var(--accent2); }
+.land-trends {
+  margin-top:1.4rem; display:flex; gap:8px; flex-wrap:wrap;
+  justify-content:center;
+  animation:fadeSlideUp 0.5s var(--ease) 0.4s both;
+}
+.trend-lbl { font-size:0.76rem; color:var(--dim); align-self:center; margin-right:4px; font-weight:500; letter-spacing:0.4px; text-transform:uppercase; }
+.t-chip {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:20px; padding:5px 13px; font-size:0.79rem;
+  color:var(--muted); cursor:pointer;
+  transition:background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.t-chip:hover { background:var(--bg4); color:var(--text); border-color:var(--border3); transform:translateY(-2px); }
 
-  /* ─── SIDEBAR ─── */
-  .sidebar {
-    width: 220px;
-    flex-shrink: 0;
-  }
-  .sidebar-section {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  .sidebar-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .filter-option {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 0;
-    font-size: 0.85rem;
-    color: var(--text);
-    cursor: pointer;
-    border-radius: 8px;
-    transition: color 0.15s;
-  }
-  .filter-option:hover { color: var(--accent2); }
-  .filter-option input[type="radio"],
-  .filter-option input[type="checkbox"] {
-    accent-color: var(--accent);
-  }
-  .safe-search-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: 4px;
-  }
-  .toggle-switch {
-    width: 36px; height: 20px;
-    background: var(--bg4);
-    border-radius: 10px;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.2s;
-    border: 1px solid var(--border2);
-  }
-  .toggle-switch.on { background: var(--accent); border-color: var(--accent); }
-  .toggle-switch::after {
-    content: '';
-    width: 14px; height: 14px;
-    background: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 2px; left: 2px;
-    transition: transform 0.2s;
-  }
-  .toggle-switch.on::after { transform: translateX(16px); }
+/* ══ RESULTS PAGE ══ */
+#results-page { display:none; min-height:100vh; flex-direction:column; }
 
-  /* ─── MAIN RESULTS ─── */
-  .main-results { flex: 1; min-width: 0; }
+.top-bar {
+  display:flex; align-items:center; gap:16px; padding:12px 24px;
+  background:rgba(15,15,22,0.9); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:200;
+  backdrop-filter:blur(14px);
+  animation:slideDown 0.35s var(--ease) both;
+}
+.top-logo { display:flex; align-items:center; gap:10px; cursor:pointer; flex-shrink:0; transition:opacity 0.15s; }
+.top-logo:hover { opacity:0.8; }
+.top-logo-mark {
+  width:32px; height:32px; background:var(--accent); border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.top-logo-mark::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%); }
+.top-logo-mark svg { width:17px; height:17px; fill:#fff; }
+.top-logo-name { font-size:1.15rem; font-weight:700; letter-spacing:-0.5px; color:#fff; }
+.top-sf {
+  flex:1; max-width:680px; display:flex; align-items:center;
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:12px; padding:4px 4px 4px 14px;
+  transition:border-color 0.2s, box-shadow 0.2s; position:relative;
+}
+.top-sf:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px var(--glow); }
+#top-search {
+  flex:1; background:transparent; border:none; outline:none;
+  color:var(--text); font-family:var(--font); font-size:0.92rem; padding:8px 0;
+}
+#top-search::placeholder { color:var(--muted); }
+.top-go {
+  background:var(--accent); color:#fff; border:none;
+  border-radius:9px; padding:8px 16px;
+  font-family:var(--font); font-size:0.84rem; font-weight:600;
+  cursor:pointer; transition:opacity 0.15s, box-shadow 0.2s;
+}
+.top-go:hover { opacity:0.9; box-shadow:0 3px 16px rgba(108,92,231,0.42); }
+.top-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.api-badge {
+  display:flex; align-items:center; gap:6px;
+  font-size:0.73rem; color:var(--green); font-family:var(--mono);
+  background:rgba(45,212,160,0.07); border:1px solid rgba(45,212,160,0.18);
+  border-radius:20px; padding:4px 11px;
+}
+.api-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:breathe 2s ease infinite; }
+.chg-btn {
+  background:transparent; border:1px solid var(--border2);
+  border-radius:8px; padding:6px 12px; color:var(--muted);
+  font-family:var(--font); font-size:0.77rem; cursor:pointer;
+  transition:all 0.15s;
+}
+.chg-btn:hover { border-color:var(--border3); color:var(--text); }
 
-  .results-meta {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 18px;
-    font-family: var(--mono);
-  }
+.tabs-bar { display:flex; padding:0 24px; background:var(--bg2); border-bottom:1px solid var(--border); }
+.tab-btn {
+  padding:12px 16px; font-size:0.86rem; font-weight:500;
+  color:var(--muted); cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color 0.2s, border-color 0.2s;
+  white-space:nowrap; letter-spacing:0.2px; user-select:none;
+}
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--accent2); border-bottom-color:var(--accent); }
 
-  /* ─── ALL TAB: Web Results ─── */
-  .web-result {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    transition: border-color 0.2s, background 0.2s;
-    cursor: pointer;
-  }
-  .web-result:hover { border-color: var(--border2); background: var(--bg3); }
-  .result-url-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .result-favicon {
-    width: 16px; height: 16px;
-    border-radius: 3px;
-    background: var(--bg4);
-    object-fit: cover;
-    flex-shrink: 0;
-  }
-  .result-url {
-    font-size: 0.78rem;
-    color: var(--muted);
-    font-family: var(--mono);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    flex: 1;
-  }
-  .result-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--accent2);
-    margin-bottom: 6px;
-    line-height: 1.4;
-    text-decoration: none;
-    display: block;
-  }
-  .result-title:hover { color: #fff; text-decoration: underline; }
-  .result-snippet {
-    font-size: 0.88rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-  .result-snippet mark {
-    background: rgba(124,106,247,0.25);
-    color: var(--accent2);
-    border-radius: 3px;
-    padding: 0 2px;
-  }
-  .result-badges {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-  }
-  .badge {
-    font-size: 0.72rem;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-weight: 500;
-    font-family: var(--mono);
-  }
-  .badge-source { background: rgba(124,106,247,0.12); color: var(--accent2); border: 1px solid rgba(124,106,247,0.2); }
-  .badge-time { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
-  .badge-type { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+.content-wrap { display:flex; gap:28px; padding:28px 24px; max-width:1180px; margin:0 auto; width:100%; }
 
-  /* ─── FEATURED SNIPPET ─── */
-  .featured-snippet {
-    background: var(--bg3);
-    border: 1px solid var(--accent);
-    border-left: 4px solid var(--accent);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .featured-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .featured-text {
-    font-size: 0.92rem;
-    line-height: 1.7;
-    color: var(--text);
-  }
+/* SIDEBAR */
+.sidebar { width:210px; flex-shrink:0; animation:fadeSlideUp 0.4s var(--ease) 0.1s both; }
+.sb-sec { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:16px 18px; margin-bottom:14px; }
+.sb-title { font-size:0.71rem; font-weight:600; color:var(--dim); letter-spacing:0.8px; text-transform:uppercase; margin-bottom:12px; }
+.sb-opt { display:flex; align-items:center; gap:9px; padding:6px 0; font-size:0.83rem; color:var(--muted); cursor:pointer; transition:color 0.15s; user-select:none; }
+.sb-opt:hover { color:var(--text); }
+.sb-opt input { accent-color:var(--accent); }
+.safe-row { display:flex; align-items:center; justify-content:space-between; }
+.tog { width:34px; height:18px; background:var(--bg5); border-radius:9px; cursor:pointer; position:relative; border:1px solid var(--border2); transition:background 0.2s, border-color 0.2s; }
+.tog.on { background:var(--accent); border-color:var(--accent); }
+.tog::after { content:''; width:12px; height:12px; background:#fff; border-radius:50%; position:absolute; top:2px; left:2px; transition:transform 0.2s var(--ease); }
+.tog.on::after { transform:translateX(16px); }
+.sb-sel { width:100%; background:var(--bg4); border:1px solid var(--border2); color:var(--text); border-radius:8px; padding:7px 10px; font-family:var(--font); font-size:0.82rem; outline:none; cursor:pointer; transition:border-color 0.15s; }
+.sb-sel:focus { border-color:var(--accent); }
 
-  /* ─── IMAGE GRID ─── */
-  .image-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-  }
-  .image-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.15s;
-  }
-  .image-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .image-card img {
-    width: 100%; aspect-ratio: 4/3;
-    object-fit: cover;
-    display: block;
-    background: var(--bg4);
-  }
-  .image-card-info {
-    padding: 10px 12px;
-  }
-  .image-card-title {
-    font-size: 0.8rem;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 4px;
-  }
-  .image-card-src {
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
+/* MAIN */
+.main-results { flex:1; min-width:0; }
+.results-meta { font-size:0.79rem; color:var(--muted); margin-bottom:16px; font-family:var(--mono); }
+.refine-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:20px; }
+.r-chip {
+  background:var(--bg3); border:1px solid var(--border2); border-radius:20px;
+  padding:5px 13px; font-size:0.79rem; color:var(--muted); cursor:pointer;
+  transition:all 0.15s;
+}
+.r-chip:hover { border-color:var(--accent); color:var(--accent2); background:rgba(108,92,231,0.07); }
+.sec-hdr { display:flex; align-items:center; justify-content:space-between; margin:22px 0 12px; }
+.sec-lbl { font-size:0.71rem; font-weight:600; color:var(--dim); text-transform:uppercase; letter-spacing:0.8px; }
+.sec-more { font-size:0.79rem; color:var(--accent2); background:none; border:none; font-family:var(--font); cursor:pointer; transition:color 0.15s; }
+.sec-more:hover { color:var(--accent3); }
 
-  /* ─── VIDEO GRID ─── */
-  .video-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-  }
-  .video-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.15s;
-  }
-  .video-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .video-thumb {
-    position: relative;
-    aspect-ratio: 16/9;
-    background: var(--bg4);
-    overflow: hidden;
-  }
-  .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .play-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.3);
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  .video-card:hover .play-overlay { opacity: 1; }
-  .play-btn-big {
-    width: 52px; height: 52px;
-    background: rgba(124,106,247,0.9);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-  }
-  .video-duration {
-    position: absolute;
-    bottom: 8px; right: 8px;
-    background: rgba(0,0,0,0.8);
-    color: #fff;
-    font-size: 0.72rem;
-    font-family: var(--mono);
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-  .video-info { padding: 12px 14px; }
-  .video-title {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .video-channel {
-    font-size: 0.78rem;
-    color: var(--muted);
-    display: flex; align-items: center; gap: 6px;
-  }
+/* WEB CARD */
+.w-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:14px; padding:18px 20px; margin-bottom:10px;
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.w-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--accent); transform:scaleY(0); transform-origin:top;
+  transition:transform 0.25s var(--ease); border-radius:3px 0 0 3px;
+}
+.w-card:hover { border-color:var(--border3); background:var(--bg3); box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+.w-card:hover::before { transform:scaleY(1); }
+.url-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+.favicon { width:14px; height:14px; border-radius:3px; background:var(--bg5); flex-shrink:0; object-fit:cover; }
+.url-txt { font-size:0.75rem; color:var(--muted); font-family:var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; }
+.w-title { font-size:1rem; font-weight:600; color:var(--accent2); margin-bottom:7px; line-height:1.4; text-decoration:none; display:block; transition:color 0.15s; }
+.w-title:hover { color:var(--accent3); text-decoration:underline; }
+.w-snip { font-size:0.85rem; color:var(--muted); line-height:1.65; }
+.w-snip mark { background:rgba(108,92,231,0.18); color:var(--accent2); border-radius:3px; padding:0 2px; }
+.badges { display:flex; gap:6px; margin-top:11px; flex-wrap:wrap; }
+.badge { font-size:0.69rem; padding:3px 9px; border-radius:20px; font-weight:500; font-family:var(--mono); }
+.b-src  { background:rgba(108,92,231,0.09);  color:var(--accent2); border:1px solid rgba(108,92,231,0.18); }
+.b-time { background:rgba(45,212,160,0.07);  color:var(--green);   border:1px solid rgba(45,212,160,0.18); }
+.b-type { background:rgba(245,185,66,0.07);  color:var(--amber);   border:1px solid rgba(245,185,66,0.18); }
 
-  /* ─── NEWS TAB ─── */
-  .news-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    display: flex;
-    gap: 16px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    text-decoration: none;
-  }
-  .news-card:hover { border-color: var(--border2); }
-  .news-thumb {
-    width: 120px; height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    background: var(--bg4);
-    flex-shrink: 0;
-  }
-  .news-body { flex: 1; min-width: 0; }
-  .news-source {
-    font-size: 0.75rem;
-    color: var(--accent);
-    font-weight: 600;
-    margin-bottom: 5px;
-    font-family: var(--mono);
-  }
-  .news-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.4;
-    margin-bottom: 6px;
-  }
-  .news-snippet {
-    font-size: 0.82rem;
-    color: var(--muted);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .news-time {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 8px;
-    font-family: var(--mono);
-  }
+/* FEATURED */
+.feat-card {
+  background:var(--bg2); border:1px solid rgba(108,92,231,0.28);
+  border-left:3px solid var(--accent); border-radius:14px;
+  padding:20px 22px; margin-bottom:12px;
+}
+.feat-lbl { font-size:0.69rem; font-weight:600; color:var(--accent); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.feat-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:breathe 2s ease infinite; }
+.feat-title { font-size:1rem; font-weight:600; color:var(--accent2); margin-bottom:8px; }
+.feat-text { font-size:0.87rem; color:var(--text); line-height:1.7; }
+.feat-url { font-size:0.74rem; color:var(--muted); font-family:var(--mono); margin-top:12px; display:block; text-decoration:none; }
+.feat-url:hover { color:var(--accent2); }
 
-  /* ─── LOADING ─── */
-  .loading-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 0;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--border2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text {
-    font-size: 0.88rem;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
+/* KNOWLEDGE PANEL */
+.kp { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:14px; }
+.kp-head { font-size:1.14rem; font-weight:700; margin-bottom:3px; }
+.kp-sub { font-size:0.77rem; color:var(--muted); font-family:var(--mono); margin-bottom:12px; }
+.kp-desc { font-size:0.86rem; line-height:1.7; color:var(--muted); margin-bottom:12px; }
+.kp-row { display:flex; align-items:baseline; gap:8px; padding:7px 0; border-top:1px solid var(--border); }
+.kp-k { font-size:0.77rem; color:var(--dim); min-width:110px; flex-shrink:0; }
+.kp-v { font-size:0.83rem; color:var(--text); }
 
-  /* ─── ERROR ─── */
-  .error-box {
-    background: rgba(248,113,113,0.08);
-    border: 1px solid rgba(248,113,113,0.25);
-    border-radius: 12px;
-    padding: 20px 24px;
-    color: var(--red);
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
+/* IMAGES */
+.img-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(188px,1fr)); gap:10px; }
+.img-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; cursor:pointer; transition:border-color 0.2s, transform 0.2s; }
+.img-card:hover { border-color:var(--accent); transform:translateY(-3px); }
+.img-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; background:var(--bg4); transition:transform 0.3s var(--ease); }
+.img-card:hover img { transform:scale(1.04); }
+.img-info { padding:9px 11px; }
+.img-title { font-size:0.77rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; }
+.img-src { font-size:0.69rem; color:var(--muted); font-family:var(--mono); }
+.inline-imgs { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.inline-imgs .img-card img { aspect-ratio:1; }
 
-  /* ─── EMPTY STATE ─── */
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-  }
-  .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
-  .empty-state p { font-size: 0.92rem; line-height: 1.6; }
+/* VIDEOS */
+.vid-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(268px,1fr)); gap:16px; }
+.vid-card { background:var(--bg2); border:1px solid var(--border); border-radius:13px; overflow:hidden; cursor:pointer; transition:border-color 0.2s, transform 0.2s; }
+.vid-card:hover { border-color:var(--accent); transform:translateY(-3px); }
+.vid-thumb-wrap { position:relative; aspect-ratio:16/9; background:var(--bg4); overflow:hidden; }
+.vid-thumb-wrap img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.3s var(--ease); }
+.vid-card:hover .vid-thumb-wrap img { transform:scale(1.05); }
+.vid-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.22); opacity:0; transition:opacity 0.2s; }
+.vid-card:hover .vid-overlay { opacity:1; }
+.play-circle { width:50px; height:50px; background:rgba(108,92,231,0.9); border-radius:50%; display:flex; align-items:center; justify-content:center; transform:scale(0.85); transition:transform 0.2s var(--ease); }
+.vid-card:hover .play-circle { transform:scale(1); }
+.play-circle svg { width:20px; height:20px; fill:#fff; margin-left:3px; }
+.vid-dur { position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.82); color:#fff; font-size:0.69rem; font-family:var(--mono); padding:2px 7px; border-radius:4px; }
+.vid-body { padding:12px 14px; }
+.vid-title { font-size:0.87rem; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.vid-meta { font-size:0.75rem; color:var(--muted); display:flex; gap:6px; align-items:center; }
+.vid-plat { font-size:0.67rem; color:var(--dim); font-family:var(--mono); margin-top:4px; }
+.inline-vids { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
 
-  /* ─── PAGINATION ─── */
-  .pagination {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 32px;
-    flex-wrap: wrap;
-  }
-  .page-btn {
-    width: 38px; height: 38px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 10px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-family: var(--mono);
-    transition: all 0.15s;
-  }
-  .page-btn:hover { border-color: var(--border2); color: var(--text); }
-  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .page-btn-wide {
-    width: auto;
-    padding: 0 14px;
-  }
+/* NEWS */
+.news-card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:16px 18px; margin-bottom:10px; display:flex; gap:16px; cursor:pointer; text-decoration:none; transition:border-color 0.2s, background 0.2s; }
+.news-card:hover { border-color:var(--border3); background:var(--bg3); }
+.news-thumb { width:110px; height:74px; object-fit:cover; border-radius:8px; background:var(--bg4); flex-shrink:0; }
+.news-body { flex:1; min-width:0; }
+.news-src { font-size:0.71rem; font-weight:600; color:var(--accent); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
+.news-ttl { font-size:0.91rem; font-weight:600; color:var(--text); line-height:1.4; margin-bottom:5px; }
+.news-snip { font-size:0.79rem; color:var(--muted); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.news-time { font-size:0.71rem; color:var(--dim); font-family:var(--mono); margin-top:7px; }
 
-  /* ─── IMAGE LIGHTBOX ─── */
-  .lightbox {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .lightbox.open { display: flex; }
-  .lightbox img {
-    max-width: 90vw;
-    max-height: 75vh;
-    object-fit: contain;
-    border-radius: 12px;
-  }
-  .lightbox-close {
-    position: absolute;
-    top: 20px; right: 24px;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .lightbox-title {
-    color: var(--text);
-    font-size: 0.9rem;
-    max-width: 600px;
-    text-align: center;
-  }
-  .lightbox-open-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-family: var(--font);
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-  }
+/* LOADING */
+.loading-wrap { display:flex; align-items:center; justify-content:center; padding:80px 0; flex-direction:column; gap:18px; }
+.spinner { width:36px; height:36px; border:2px solid var(--border2); border-top-color:var(--accent); border-radius:50%; animation:spin 0.75s linear infinite; }
+.loading-txt { font-size:0.83rem; color:var(--muted); font-family:var(--mono); animation:blink 1.5s ease infinite; }
 
-  /* ─── AUTOCOMPLETE ─── */
-  .autocomplete-box {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0; right: 0;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 14px;
-    overflow: hidden;
-    z-index: 200;
-    display: none;
-  }
-  .autocomplete-box.open { display: block; }
-  .autocomplete-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background 0.1s;
-    color: var(--text);
-  }
-  .autocomplete-item:hover { background: var(--bg4); }
-  .autocomplete-icon { color: var(--muted); font-size: 14px; }
+/* PAGINATION */
+.pagination { display:flex; gap:7px; justify-content:center; margin-top:38px; flex-wrap:wrap; }
+.pg { min-width:36px; height:36px; padding:0 10px; display:flex; align-items:center; justify-content:center; border-radius:9px; background:var(--bg2); border:1px solid var(--border); color:var(--muted); cursor:pointer; font-size:0.81rem; font-family:var(--mono); transition:all 0.15s; }
+.pg:hover { border-color:var(--border3); color:var(--text); }
+.pg.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-  /* ─── VOICE SEARCH ─── */
-  .voice-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 18px;
-    padding: 8px;
-    border-radius: 8px;
-    transition: color 0.15s, background 0.15s;
-    display: flex; align-items: center;
-  }
-  .voice-btn:hover { color: var(--text); background: var(--bg4); }
-  .voice-btn.listening { color: var(--red); animation: pulse 1s ease infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+/* LIGHTBOX */
+.lightbox { position:fixed; inset:0; background:rgba(0,0,0,0.94); z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
+.lightbox.open { display:flex; animation:fadeIn 0.2s ease both; }
+.lightbox img { max-width:88vw; max-height:72vh; object-fit:contain; border-radius:10px; animation:scaleIn 0.3s var(--ease) both; }
+.lb-close { position:absolute; top:18px; right:22px; background:var(--bg3); border:1px solid var(--border2); color:var(--text); width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:16px; line-height:1; display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+.lb-close:hover { background:var(--bg4); }
+.lb-title { color:var(--text); font-size:0.87rem; max-width:560px; text-align:center; }
+.lb-link { background:var(--accent); color:#fff; border:none; border-radius:10px; padding:9px 20px; font-family:var(--font); font-size:0.85rem; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; transition:opacity 0.15s; }
+.lb-link:hover { opacity:0.9; }
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .content-wrap { padding: 16px; }
-    .top-logo-text { display: none; }
-    .video-grid { grid-template-columns: 1fr; }
-    .news-thumb { display: none; }
-    .image-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-  }
+.empty-state { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-state p { font-size:0.9rem; line-height:1.6; }
 
-  /* ─── INLINE RESULTS IN ALL TAB ─── */
-  .section-header {
-    display: flex; align-items: center;
-    justify-content: space-between;
-    margin: 24px 0 14px;
-  }
-  .section-title {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .section-more {
-    font-size: 0.8rem;
-    color: var(--accent);
-    cursor: pointer;
-    border: none; background: none; font-family: var(--font);
-  }
-  .section-more:hover { text-decoration: underline; }
-  .all-images-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 8px;
-  }
-  .all-images-row .image-card img { aspect-ratio: 1; }
-  .all-videos-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  @media (max-width: 600px) {
-    .all-images-row { grid-template-columns: repeat(2, 1fr); }
-    .all-videos-row { grid-template-columns: 1fr; }
-  }
-
-  /* ─── KNOWLEDGE PANEL ─── */
-  .knowledge-panel {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .kp-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
-  .kp-type { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; font-family: var(--mono); }
-  .kp-desc { font-size: 0.88rem; line-height: 1.7; color: var(--text); margin-bottom: 14px; }
-  .kp-row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0; border-top: 1px solid var(--border); }
-  .kp-label { font-size: 0.78rem; color: var(--muted); width: 100px; flex-shrink: 0; }
-  .kp-value { font-size: 0.85rem; color: var(--text); }
-
-  /* ─── QUERY REFINEMENT CHIPS ─── */
-  .refine-chips {
-    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px;
-  }
-  .refine-chip {
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 0.82rem;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .refine-chip:hover { border-color: var(--accent); color: var(--accent2); }
-
-  /* Key config note */
-  .api-note {
-    display: none;
-  }
+@media(max-width:768px) {
+  .sidebar { display:none; }
+  .content-wrap { padding:16px; }
+  .top-logo-name { display:none; }
+  .vid-grid { grid-template-columns:1fr; }
+  .news-thumb { display:none; }
+  .img-grid { grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); }
+  .inline-imgs { grid-template-columns:repeat(2,1fr); }
+  .inline-vids { grid-template-columns:1fr; }
+  .top-right { display:none; }
+}
 </style>
 </head>
 <body>
 
-<!-- ────────────── LANDING PAGE ────────────── -->
-<div id="landing">
-  <div class="logo-wrap">
-    <div class="logo-icon">✦</div>
-    <div class="logo-text">Nexus</div>
-  </div>
-  <p class="tagline">Search the web, images, and videos — all in one place</p>
-  <div class="search-container">
-    <div class="search-box" id="landing-search-box">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="main-search" placeholder="Search anything..." autocomplete="off">
-      <button class="voice-btn" id="voice-btn-land" title="Voice search" onclick="startVoice('main-search')">🎤</button>
-      <button class="search-btn" onclick="doSearch()">Search</button>
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M11 2a9 9 0 1 0 6.33 15.33l3.84 3.84 1.42-1.42-3.84-3.84A9 9 0 0 0 11 2zm0 2a7 7 0 1 1 0 14A7 7 0 0 1 11 4z"/></svg>
+      </div>
+      <span class="logo-name">Nexus</span>
     </div>
-    <div class="autocomplete-box" id="landing-autocomplete"></div>
-  </div>
-  <div class="suggestions-row" id="suggestions">
-    <span class="suggestion-pill" onclick="quickSearch('artificial intelligence 2025')">Artificial Intelligence</span>
-    <span class="suggestion-pill" onclick="quickSearch('space exploration news')">Space Exploration</span>
-    <span class="suggestion-pill" onclick="quickSearch('climate change solutions')">Climate Change</span>
-    <span class="suggestion-pill" onclick="quickSearch('quantum computing breakthrough')">Quantum Computing</span>
-    <span class="suggestion-pill" onclick="quickSearch('global technology trends')">Tech Trends</span>
-    <span class="suggestion-pill" onclick="quickSearch('beautiful nature photography')">Nature Photography</span>
+
+    <div class="setup-heading">Connect your Groq API key</div>
+    <p class="setup-sub">Nexus uses Groq to generate real, AI-powered web search results with actual working links. Your key is stored in your browser only — never on any server.</p>
+
+    <div class="setup-label">Groq API Key</div>
+    <div class="setup-input-wrap">
+      <input type="password" class="setup-input" id="api-key-input"
+             placeholder="gsk_••••••••••••••••••••••••"
+             onkeydown="if(event.key==='Enter') submitKey()">
+      <button class="eye-btn" onclick="toggleEye()">
+        <svg id="eye-icon" viewBox="0 0 24 24">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="setup-info">
+      Get a free key at <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>
+      — no credit card required. Stored in <code>localStorage</code>, never transmitted except to Groq's API.
+    </div>
+
+    <button class="setup-btn" onclick="submitKey()">Continue to Nexus Search</button>
+    <div class="setup-error" id="setup-error">Key must start with gsk_ — check console.groq.com</div>
+
+    <div class="setup-divider"><span>or</span></div>
+    <button class="setup-btn secondary" onclick="demoMode()">Try demo mode (limited results)</button>
   </div>
 </div>
 
-<!-- ────────────── RESULTS PAGE ────────────── -->
+<!-- ═══ LANDING ═══ -->
+<div id="landing">
+  <div class="land-logo">
+    <div class="land-mark">
+      <svg viewBox="0 0 24 24"><path d="M11 2a9 9 0 1 0 6.33 15.33l3.84 3.84 1.42-1.42-3.84-3.84A9 9 0 0 0 11 2zm0 2a7 7 0 1 1 0 14A7 7 0 0 1 11 4z"/></svg>
+    </div>
+    <span class="land-name">Nexus</span>
+  </div>
+  <p class="land-tagline">Search the web, images, and videos — powered by Groq AI</p>
+  <div class="land-wrap">
+    <div class="land-box">
+      <svg class="si" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="main-search" placeholder="Search anything..." autocomplete="off">
+      <button class="mic-btn" id="mic-land" onclick="voice('main-search')">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+      </button>
+      <button class="go-btn" onclick="doSearch()">Search</button>
+    </div>
+    <div class="ac-drop" id="land-ac"></div>
+  </div>
+  <div class="land-trends">
+    <span class="trend-lbl">Trending</span>
+    <span class="t-chip" onclick="qs('artificial intelligence 2025')">Artificial intelligence</span>
+    <span class="t-chip" onclick="qs('space exploration discoveries')">Space exploration</span>
+    <span class="t-chip" onclick="qs('quantum computing applications')">Quantum computing</span>
+    <span class="t-chip" onclick="qs('renewable energy technology')">Renewable energy</span>
+    <span class="t-chip" onclick="qs('typescript best practices 2025')">TypeScript 2025</span>
+    <span class="t-chip" onclick="qs('climate science research')">Climate science</span>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
 <div id="results-page">
-  <!-- Top Bar -->
   <div class="top-bar">
-    <div class="top-logo" onclick="backToHome()">
-      <div class="top-logo-icon">✦</div>
-      <span class="top-logo-text">Nexus</span>
-    </div>
-    <div class="top-search-wrap">
-      <span class="top-search-icon">⌕</span>
-      <input type="text" id="top-search" placeholder="Search anything..." autocomplete="off">
-      <button class="voice-btn" onclick="startVoice('top-search')" title="Voice">🎤</button>
-      <button class="top-search-btn" onclick="doSearchFromTop()">Search</button>
-    </div>
-  </div>
-  <!-- Tabs -->
-  <div class="tabs-bar">
-    <div class="tab active" id="tab-all" onclick="switchTab('all')">🌐 All</div>
-    <div class="tab" id="tab-images" onclick="switchTab('images')">🖼 Images</div>
-    <div class="tab" id="tab-videos" onclick="switchTab('videos')">▶ Videos</div>
-    <div class="tab" id="tab-news" onclick="switchTab('news')">📰 News</div>
-  </div>
-  <!-- Content -->
-  <div class="content-wrap">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-title">Time Range</div>
-        <label class="filter-option"><input type="radio" name="time" value="any" checked onchange="applyFilters()"> Any time</label>
-        <label class="filter-option"><input type="radio" name="time" value="day" onchange="applyFilters()"> Past 24 hours</label>
-        <label class="filter-option"><input type="radio" name="time" value="week" onchange="applyFilters()"> Past week</label>
-        <label class="filter-option"><input type="radio" name="time" value="month" onchange="applyFilters()"> Past month</label>
-        <label class="filter-option"><input type="radio" name="time" value="year" onchange="applyFilters()"> Past year</label>
+    <div class="top-logo" onclick="goHome()">
+      <div class="top-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M11 2a9 9 0 1 0 6.33 15.33l3.84 3.84 1.42-1.42-3.84-3.84A9 9 0 0 0 11 2zm0 2a7 7 0 1 1 0 14A7 7 0 0 1 11 4z"/></svg>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Safe Search</div>
-        <div class="safe-search-toggle">
-          <span style="font-size:0.85rem;color:var(--muted)">Filter results</span>
-          <div class="toggle-switch on" id="safe-toggle" onclick="toggleSafe()"></div>
+      <span class="top-logo-name">Nexus</span>
+    </div>
+    <div class="top-sf">
+      <svg class="si" style="width:16px;height:16px;flex-shrink:0;margin-right:10px;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="top-search" placeholder="Search anything..." autocomplete="off">
+      <button class="mic-btn" onclick="voice('top-search')">
+        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>
+      </button>
+      <button class="top-go" onclick="doSearchTop()">Search</button>
+    </div>
+    <div class="ac-drop" id="top-ac" style="top:62px;left:172px;right:200px;"></div>
+    <div class="top-right">
+      <div class="api-badge"><div class="api-dot"></div><span id="api-label">Groq connected</span></div>
+      <button class="chg-btn" onclick="changeKey()">Change key</button>
+    </div>
+  </div>
+
+  <div class="tabs-bar">
+    <div class="tab-btn active" id="tab-all"    onclick="switchTab('all')">All</div>
+    <div class="tab-btn"        id="tab-images" onclick="switchTab('images')">Images</div>
+    <div class="tab-btn"        id="tab-videos" onclick="switchTab('videos')">Videos</div>
+    <div class="tab-btn"        id="tab-news"   onclick="switchTab('news')">News</div>
+  </div>
+
+  <div class="content-wrap">
+    <div class="sidebar">
+      <div class="sb-sec">
+        <div class="sb-title">Time Range</div>
+        <label class="sb-opt"><input type="radio" name="time" value="any" checked onchange="refilter()"> Any time</label>
+        <label class="sb-opt"><input type="radio" name="time" value="day"   onchange="refilter()"> Past 24 hours</label>
+        <label class="sb-opt"><input type="radio" name="time" value="week"  onchange="refilter()"> Past week</label>
+        <label class="sb-opt"><input type="radio" name="time" value="month" onchange="refilter()"> Past month</label>
+        <label class="sb-opt"><input type="radio" name="time" value="year"  onchange="refilter()"> Past year</label>
+      </div>
+      <div class="sb-sec">
+        <div class="sb-title">Safe Search</div>
+        <div class="safe-row">
+          <span style="font-size:0.82rem;color:var(--muted)">Filter results</span>
+          <div class="tog on" id="safe-tog" onclick="toggleSafe()"></div>
         </div>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Region</div>
-        <select onchange="applyFilters()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 10px;width:100%;font-family:var(--font);font-size:0.85rem;outline:none;">
+      <div class="sb-sec">
+        <div class="sb-title">Region</div>
+        <select class="sb-sel" onchange="refilter()">
+          <option value="global" selected>Global</option>
           <option value="us">United States</option>
           <option value="kw">Kuwait</option>
           <option value="gb">United Kingdom</option>
           <option value="de">Germany</option>
           <option value="jp">Japan</option>
           <option value="in">India</option>
-          <option value="global" selected>Global</option>
+          <option value="au">Australia</option>
+          <option value="ca">Canada</option>
         </select>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-title">Source Type</div>
-        <label class="filter-option"><input type="checkbox" checked> Web pages</label>
-        <label class="filter-option"><input type="checkbox" checked> News articles</label>
-        <label class="filter-option"><input type="checkbox" checked> Academic</label>
-        <label class="filter-option"><input type="checkbox"> Shopping</label>
+      <div class="sb-sec">
+        <div class="sb-title">Source Type</div>
+        <label class="sb-opt"><input type="checkbox" checked> Web pages</label>
+        <label class="sb-opt"><input type="checkbox" checked> News articles</label>
+        <label class="sb-opt"><input type="checkbox" checked> Research / academic</label>
+        <label class="sb-opt"><input type="checkbox"> Forums</label>
+        <label class="sb-opt"><input type="checkbox"> Shopping</label>
       </div>
     </div>
-
-    <!-- Main Area -->
-    <div class="main-results" id="main-results">
-      <div class="loading-wrap">
-        <div class="spinner"></div>
-        <div class="loading-text">Searching...</div>
-      </div>
-    </div>
+    <div class="main-results" id="main"></div>
   </div>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="">
-  <div class="lightbox-title" id="lightbox-title"></div>
-  <a class="lightbox-open-btn" id="lightbox-link" href="#" target="_blank" rel="noopener">Open Original</a>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lb" onclick="closeLB(event)">
+  <button class="lb-close" onclick="closeLB()">x</button>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-title" id="lb-title"></div>
+  <a class="lb-link" id="lb-link" href="#" target="_blank" rel="noopener">Open original</a>
 </div>
 
 <script>
-// ─── CONFIGURATION ───────────────────────────────────────────────
-const GROQ_API_KEY = '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';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+// ═══ STATE ═══
+let KEY = localStorage.getItem('nx_key') || '';
+let DEMO = false;
+const MODEL = 'llama-3.3-70b-versatile';
+let Q = '', TAB = 'all', PAGE = 1, SAFE = true;
+let C = { web:[], images:[], videos:[], news:[] };
+let H = JSON.parse(localStorage.getItem('nx_h') || '[]');
 
-// ─── STATE ───────────────────────────────────────────────────────
-let currentQuery = '';
-let currentTab = 'all';
-let safeSearch = true;
-let currentPage = 1;
-let cachedResults = { web: [], images: [], videos: [], news: [] };
-let searchHistory = JSON.parse(localStorage.getItem('nexus_history') || '[]');
-let isListening = false;
-
-// ─── INIT ─────────────────────────────────────────────────────────
+// ═══ INIT ═══
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('main-search').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doSearch();
-  });
-  document.getElementById('top-search').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doSearchFromTop();
-  });
-  document.getElementById('main-search').addEventListener('input', e => {
-    showAutocomplete(e.target.value, 'landing-autocomplete', 'main-search');
-  });
-  document.getElementById('top-search').addEventListener('input', e => {
-    showAutocomplete(e.target.value, 'top-autocomplete', 'top-search');
-  });
+  if (KEY) show('landing');
+  bind('main-search','land-ac', doSearch);
+  bind('top-search','top-ac', doSearchTop);
   document.addEventListener('click', e => {
-    if (!e.target.closest('.search-box') && !e.target.closest('.top-search-wrap')) {
-      document.querySelectorAll('.autocomplete-box').forEach(b => b.classList.remove('open'));
+    if (!e.target.closest('.land-wrap') && !e.target.closest('.top-sf')) closeAC();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeLB(); closeAC(); }
+    if (e.key === '/' && document.getElementById('results-page').style.display !== 'none') {
+      e.preventDefault(); document.getElementById('top-search').focus();
     }
   });
 });
 
-// ─── AUTOCOMPLETE ─────────────────────────────────────────────────
-const AUTOCOMPLETE_SUGGESTIONS = {
-  'a': ['artificial intelligence', 'apple news', 'amazon latest', 'astronomy photos'],
-  'b': ['bitcoin price today', 'best movies 2025', 'black holes explained'],
-  'c': ['climate change news', 'cryptocurrency news', 'coding tutorials'],
-  'd': ['deep learning', 'dark matter explained', 'developer news'],
-  'e': ['electric vehicles 2025', 'economic forecast', 'earth from space'],
-  'f': ['future of technology', 'football scores', 'free AI tools'],
-  'g': ['global warming solutions', 'gaming news 2025', 'galaxy images'],
-  'h': ['health news today', 'history facts', 'how does AI work'],
-  'i': ['internet of things', 'image recognition AI', 'innovation 2025'],
-  'j': ['james webb telescope', 'japan technology', 'javascript news'],
-  'k': ['kubernetes tutorial', 'knowledge graph AI'],
-  'l': ['latest space news', 'large language models', 'life on mars'],
-  'm': ['machine learning', 'mars exploration', 'mobile technology'],
-  'n': ['neural networks explained', 'nature photography', 'nanotechnology'],
-  'o': ['open source AI', 'ocean exploration', 'optical illusions'],
-  'p': ['programming languages 2025', 'physics explained', 'planetary science'],
-  'q': ['quantum computing news', 'quantum physics basics'],
-  'r': ['renewable energy news', 'robotics 2025', 'react javascript'],
-  's': ['space exploration news', 'solar system facts', 'science breakthroughs'],
-  't': ['technology trends 2025', 'tesla news', 'telescope images'],
-  'u': ['universe facts', 'urban planning tech'],
-  'v': ['virtual reality news', 'virus research', 'video editing AI'],
-  'w': ['web development 2025', 'wildlife photography', 'water on mars'],
-  'x': ['xray astronomy', 'xbox news'],
-  'y': ['youtube shorts trend'],
-  'z': ['zero gravity experiments', 'zoology facts']
-};
-
-function showAutocomplete(val, boxId, inputId) {
-  const box = document.getElementById(boxId);
-  if (!val || val.length < 2) { box.classList.remove('open'); return; }
-  const first = val[0].toLowerCase();
-  const matches = (AUTOCOMPLETE_SUGGESTIONS[first] || [])
-    .filter(s => s.toLowerCase().includes(val.toLowerCase()))
-    .slice(0, 6);
-  const histMatches = searchHistory.filter(h => h.toLowerCase().includes(val.toLowerCase())).slice(0,3);
-  const all = [...new Set([...histMatches, ...matches])].slice(0,7);
-  if (!all.length) { box.classList.remove('open'); return; }
-  box.innerHTML = all.map(s => `
-    <div class="autocomplete-item" onclick="selectSuggestion('${s}','${inputId}','${boxId}')">
-      <span class="autocomplete-icon">⌕</span>${s}
-    </div>`).join('');
-  box.classList.add('open');
+function show(page) {
+  ['setup-screen','landing','results-page'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.display = (id === page || (page === 'results' && id === 'results-page')) ? (id === 'results-page' ? 'flex' : 'flex') : 'none';
+    if (id === 'landing') el.style.display = page === 'landing' ? 'flex' : 'none';
+    if (id === 'setup-screen') el.style.display = page === 'setup' ? 'flex' : 'none';
+    if (id === 'results-page') el.style.display = page === 'results' ? 'flex' : 'none';
+  });
 }
 
-function selectSuggestion(val, inputId, boxId) {
-  document.getElementById(inputId).value = val;
-  document.getElementById(boxId).classList.remove('open');
-  if (inputId === 'main-search') doSearch();
-  else doSearchFromTop();
+function bind(inputId, acId, fn) {
+  const el = document.getElementById(inputId);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') fn(); });
+  el.addEventListener('input',   e => { buildAC(e.target.value, acId, inputId); });
 }
 
-// ─── NAVIGATION ───────────────────────────────────────────────────
-function backToHome() {
-  document.getElementById('landing').style.display = 'flex';
-  document.getElementById('results-page').style.display = 'none';
+// ═══ SETUP ═══
+function toggleEye() {
+  const i = document.getElementById('api-key-input');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+function submitKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  const err = document.getElementById('setup-error');
+  const inp = document.getElementById('api-key-input');
+  if (!k || !k.startsWith('gsk_')) {
+    err.style.display = 'block';
+    inp.classList.add('err');
+    return;
+  }
+  KEY = k;
+  localStorage.setItem('nx_key', k);
+  err.style.display = 'none';
+  inp.classList.remove('err');
+  show('landing');
+}
+function demoMode() { DEMO = true; KEY = 'demo'; show('landing'); }
+function changeKey() {
+  localStorage.removeItem('nx_key');
+  KEY = ''; DEMO = false;
+  show('setup');
+  document.getElementById('api-key-input').value = '';
 }
 
-function quickSearch(q) {
-  document.getElementById('main-search').value = q;
-  doSearch();
+// ═══ NAVIGATION ═══
+function goHome() {
+  show('landing');
+  document.getElementById('main-search').value = '';
 }
-
+function qs(q) { document.getElementById('main-search').value = q; doSearch(); }
 function doSearch() {
   const q = document.getElementById('main-search').value.trim();
-  if (!q) return;
-  startSearch(q);
+  if (q) runSearch(q);
 }
-
-function doSearchFromTop() {
+function doSearchTop() {
   const q = document.getElementById('top-search').value.trim();
-  if (!q) return;
-  startSearch(q);
+  if (q) runSearch(q);
 }
-
-function startSearch(q) {
-  currentQuery = q;
-  currentPage = 1;
-  cachedResults = { web: [], images: [], videos: [], news: [] };
-  addToHistory(q);
-  document.getElementById('top-search').value = q;
+function refilter() { if (Q) fetchAll(Q); }
+function runSearch(q) {
+  Q = q; PAGE = 1;
+  C = { web:[], images:[], videos:[], news:[] };
+  addH(q);
+  document.getElementById('top-search').value  = q;
   document.getElementById('main-search').value = q;
-  document.getElementById('landing').style.display = 'none';
-  document.getElementById('results-page').style.display = 'flex';
-  document.querySelectorAll('.autocomplete-box').forEach(b => b.classList.remove('open'));
-  fetchAllResults(q);
+  closeAC();
+  show('results');
+  loading();
+  fetchAll(q);
+}
+function addH(q) {
+  H = [q, ...H.filter(h=>h!==q)].slice(0,30);
+  localStorage.setItem('nx_h', JSON.stringify(H));
+}
+function toggleSafe() {
+  SAFE = !SAFE;
+  document.getElementById('safe-tog').classList.toggle('on', SAFE);
+}
+function switchTab(t) {
+  TAB = t;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  renderTab();
 }
 
-// ─── HISTORY ──────────────────────────────────────────────────────
-function addToHistory(q) {
-  searchHistory = [q, ...searchHistory.filter(h => h !== q)].slice(0, 20);
-  localStorage.setItem('nexus_history', JSON.stringify(searchHistory));
-}
+// ═══ AUTOCOMPLETE ═══
+const ACS = {
+  a:['artificial intelligence research','apple silicon chips','astronomy discoveries nasa','aws cloud computing'],
+  b:['best programming languages 2025','bitcoin blockchain technology','black holes event horizon','biology genetics research'],
+  c:['climate change ipcc report','cloud computing trends','cryptocurrency regulation','cybersecurity threats 2025'],
+  d:['data science machine learning','deep learning transformers','docker kubernetes tutorial','drone autonomous systems'],
+  e:['electric vehicles battery range','environmental policy research','ethereum smart contracts'],
+  f:['future robotics automation','fintech banking innovation','frontend frameworks comparison'],
+  g:['generative ai models 2025','global warming carbon capture','graphql rest api comparison'],
+  h:['health technology wearables','history roman empire','how transformers work nlp'],
+  i:['internet of things sensors','image segmentation deep learning','innovation startup ecosystem'],
+  j:['javascript typescript 2025','james webb space telescope images','japan technology robotics'],
+  k:['kubernetes deployment guide','knowledge graphs ai'],
+  l:['large language models evaluation','latest nasa missions','linux performance tuning'],
+  m:['machine learning model training','mars colonization plans','mobile app development react native'],
+  n:['neural network architecture','nasa artemis program','next.js server components 2025'],
+  o:['open source llm models','ocean acidification research','optical fiber communications'],
+  p:['python data analysis pandas','physics quantum mechanics','protein folding alphafold'],
+  q:['quantum computing qubit','quantum cryptography security'],
+  r:['renewable energy wind solar','reinforcement learning robotics','react server components'],
+  s:['space exploration future','semiconductor industry trends','scientific computing hpc'],
+  t:['technology trends 2025','tokamak fusion energy','typescript advanced types'],
+  u:['universe expansion dark energy','ubuntu linux tutorial'],
+  v:['virtual reality metaverse','virus evolution pandemic'],
+  w:['web3 decentralized applications','wildlife conservation technology','wasm webassembly'],
+  x:['x-ray crystallography research'],
+  y:['youtube algorithm recommendation'],
+  z:['zero emission hydrogen fuel','zoological research conservation']
+};
 
-// ─── TAB SWITCHING ────────────────────────────────────────────────
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  renderCurrentTab();
+function buildAC(val, boxId, inputId) {
+  const box = document.getElementById(boxId);
+  if (!val || val.length < 2) { box.classList.remove('open'); return; }
+  const f = val[0].toLowerCase();
+  const base = (ACS[f]||[]).filter(s=>s.includes(val.toLowerCase())).slice(0,5);
+  const hist = H.filter(h=>h.toLowerCase().includes(val.toLowerCase())).slice(0,3);
+  const all = [...new Set([...hist,...base])].slice(0,7);
+  if (!all.length) { box.classList.remove('open'); return; }
+  box.innerHTML = all.map(s => {
+    const isH = hist.includes(s);
+    return `<div class="ac-item" onclick="selAC('${s.replace(/'/g,"\\'")}','${inputId}','${boxId}')">
+      <svg class="ac-ic ${isH?'hist':''}" viewBox="0 0 24 24" stroke-width="1.8">
+        ${isH ? '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.72"/>'
+               : '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>'}
+      </svg>${s}
+    </div>`;
+  }).join('');
+  box.classList.add('open');
 }
+function selAC(v, inp, box) {
+  document.getElementById(inp).value = v;
+  document.getElementById(box).classList.remove('open');
+  if (inp==='main-search') doSearch(); else doSearchTop();
+}
+function closeAC() { document.querySelectorAll('.ac-drop').forEach(b=>b.classList.remove('open')); }
 
-// ─── FETCH ALL RESULTS ────────────────────────────────────────────
-async function fetchAllResults(q) {
-  showLoading();
-  try {
-    await Promise.all([
-      fetchWebResults(q),
-      fetchImages(q),
-      fetchVideos(q),
-      fetchNews(q)
-    ]);
-  } catch(e) {
-    console.error(e);
+// ═══ FETCH ═══
+async function fetchAll(q) {
+  loading();
+  await Promise.all([fetchWeb(q), fetchImages(q), fetchVideos(q)]);
+
+  // Build news from web results + supplement
+  C.news = C.web
+    .filter(r => r.type==='news' || r.type==='article')
+    .map(r => ({...r, img:`https://picsum.photos/seed/${enc(r.domain||q)}/300/200`}));
+
+  const newsSites = ['bbc.com','reuters.com','apnews.com','theguardian.com','techcrunch.com','bloomberg.com','wired.com','scientificamerican.com','nature.com','arstechnica.com'];
+  while (C.news.length < 8) {
+    const i = C.news.length;
+    const dom = newsSites[i%newsSites.length];
+    C.news.push({
+      title: ['Latest developments in ','New research on ','Breaking analysis of ','Key findings about '][i%4] + q,
+      url:   `https://${dom}/search?q=${encodeURIComponent(q)}`,
+      domain: dom,
+      snippet: `In-depth coverage of ${q} from ${dom}. Expert journalists analyze the latest data and developments.`,
+      published: ['1h ago','3h ago','6h ago','12h ago','Yesterday','2 days ago'][i%6],
+      img: `https://picsum.photos/seed/${enc(q+i+'n')}/300/200`,
+      source: dom.split('.')[0].replace(/^./,c=>c.toUpperCase())
+    });
   }
-  renderCurrentTab();
+  renderTab();
 }
 
-// ─── GROQ WEB SEARCH ─────────────────────────────────────────────
-async function fetchWebResults(q) {
-  const systemPrompt = `You are a search engine. The user will give you a search query. 
-Respond ONLY with a JSON array of exactly 10 web search results. 
-Each result must have these fields:
-- title: string (compelling title for the page)
-- url: string (realistic full URL like https://www.domain.com/path)
-- snippet: string (2-3 sentence description, ~100 words, naturally mentioning the query terms)
-- domain: string (just the domain like "example.com")
-- favicon: string (URL like https://www.google.com/s2/favicons?domain=example.com)
-- type: string (one of: "article","news","official","research","video","shopping","social")
-- published: string (a realistic date like "2 hours ago" or "Jan 15, 2025")
-- featured: boolean (true for the single most relevant result only)
+// ── GROQ WEB SEARCH ──────────────────────────────────────
+async function fetchWeb(q) {
+  if (DEMO) { C.web = demoResults(q); return; }
 
-Also include a "knowledge" object at array index 0 as a special item with type:"knowledge" containing:
-- entity: string (the main entity/topic)
-- description: string (3-4 sentence overview)
-- facts: array of {label, value} (5 key facts)
+  const sys = `You are a search engine. For the given query, generate 12 highly relevant web search results using REAL websites.
 
-Return ONLY valid JSON, no markdown, no explanation.`;
+STRICT RULES:
+1. Use only real, existing domains: wikipedia.org, britannica.com, reddit.com, stackoverflow.com, github.com, medium.com, dev.to, arxiv.org, nature.com, science.org, nih.gov, nasa.gov, mit.edu, stanford.edu, bbc.com, reuters.com, theguardian.com, nytimes.com, techcrunch.com, wired.com, arstechnica.com, towardsdatascience.com, docs.python.org, developer.mozilla.org, w3schools.com, freecodecamp.org, kaggle.com, huggingface.co, openai.com, anthropic.com, youtube.com
+2. Construct realistic, valid URLs using the actual path structure of each site (e.g., wikipedia.org/wiki/Topic, arxiv.org/abs/1234.56789, medium.com/@author/article-slug)
+3. Each result must be a direct, clickable link to a relevant page — not a homepage or generic search
+4. Write natural, informative snippets (2-3 sentences) mentioning the query
+5. Include a mix of result types: official docs, news, research, forums, tutorials
+
+Return ONLY a valid JSON array (no markdown, no explanation) with these fields per object:
+{"title":"...","url":"https://...","domain":"...","snippet":"...","type":"article|news|official|research|forum|video","published":"e.g. Mar 14, 2025","featured":false}
+
+Mark exactly ONE result as featured:true (the most authoritative).
+Add ONE knowledge object at index 0:
+{"type":"knowledge","entity":"...","description":"4 sentences about the topic","facts":[{"label":"...","value":"..."}]}  (5 facts)
+
+Return ONLY the JSON array. Start with [`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${KEY}` },
       body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: q }
-        ],
-        max_tokens: 3000,
-        temperature: 0.7
+        model: MODEL,
+        messages:[{ role:'system', content:sys },{ role:'user', content:q }],
+        max_tokens: 3600,
+        temperature: 0.5
       })
     });
-    const data = await res.json();
-    let text = data.choices?.[0]?.message?.content || '[]';
-    text = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(text);
-    cachedResults.web = parsed;
-    // Extract news-like items
-    cachedResults.news = parsed.filter(r => r.type === 'news').map(r => ({...r, image: `https://picsum.photos/seed/${encodeURIComponent(r.domain)}/300/200`}));
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    let txt = d.choices?.[0]?.message?.content || '[]';
+    txt = txt.replace(/```json|```/g,'').trim();
+    const s = txt.indexOf('['), e = txt.lastIndexOf(']');
+    if (s !== -1 && e !== -1) txt = txt.slice(s, e+1);
+    C.web = JSON.parse(txt);
   } catch(e) {
-    console.error('Groq error:', e);
-    cachedResults.web = getFallbackResults(q);
+    console.error('Groq:', e);
+    C.web = demoResults(q);
+    document.getElementById('api-label').textContent = 'Groq error — demo mode';
   }
 }
 
-// ─── IMAGES (Unsplash free API + Picsum) ─────────────────────────
-async function fetchImages(q) {
-  const encoded = encodeURIComponent(q);
-  const seeds = [q, q+'1', q+'2', q+'3', q+'nature', q+'art', q+'tech', q+'photo', q+'2025', q+'new'];
-  const images = seeds.slice(0,12).map((seed, i) => ({
-    id: i,
-    title: `${q} — image ${i+1}`,
-    url: `https://picsum.photos/seed/${encodeURIComponent(seed)}/800/600`,
-    thumb: `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/300`,
-    source: 'Picsum Photos',
-    sourceUrl: 'https://picsum.photos',
-    width: 800, height: 600
+// ── IMAGES (Picsum + Unsplash source) ────────────────────
+function fetchImages(q) {
+  const seeds = Array.from({length:16},(_,i)=>`${q}${i}`);
+  C.images = seeds.map((seed,i) => ({
+    id:i, title:`${q} — photo ${i+1}`,
+    url:`https://picsum.photos/seed/${enc(seed)}/1200/900`,
+    thumb:`https://picsum.photos/seed/${enc(seed)}/400/300`,
+    source:'Picsum Photos', sourceUrl:'https://picsum.photos'
   }));
-  
-  // Try Unsplash Source (no key needed)
-  const unsplashSeeds = ['technology','nature','space','science','art','city'];
-  const extras = unsplashSeeds.slice(0,6).map((topic, i) => ({
-    id: 20+i,
-    title: `${q} — ${topic}`,
-    url: `https://source.unsplash.com/800x600/?${encoded},${topic}`,
-    thumb: `https://source.unsplash.com/400x300/?${encoded},${topic}`,
-    source: 'Unsplash',
-    sourceUrl: 'https://unsplash.com',
-    width: 800, height: 600
-  }));
-  
-  cachedResults.images = [...images, ...extras];
+  const topics = ['technology','nature','science','architecture','art','city','research','space'];
+  topics.forEach((t,i) => {
+    C.images.push({
+      id:100+i, title:`${q} — ${t}`,
+      url:`https://source.unsplash.com/1200x900/?${encodeURIComponent(q)},${t}`,
+      thumb:`https://source.unsplash.com/400x300/?${encodeURIComponent(q)},${t}`,
+      source:'Unsplash', sourceUrl:`https://unsplash.com/s/photos/${encodeURIComponent(q)}`
+    });
+  });
 }
 
-// ─── VIDEOS (PeerTube public API + YouTube no-key public) ─────────
+// ── VIDEOS (PeerTube then YouTube fallback) ───────────────
 async function fetchVideos(q) {
-  const encoded = encodeURIComponent(q);
-  // Use PeerTube search (no key)
   try {
-    const res = await fetch(`https://peertube.social/api/v1/search/videos?search=${encoded}&count=12&sort=-trending&nsfw=false`);
-    if (res.ok) {
-      const data = await res.json();
-      cachedResults.videos = (data.data || []).map(v => ({
-        id: v.id,
-        title: v.name,
-        channel: v.account?.displayName || 'Creator',
-        channelAvatar: v.account?.avatar?.path ? `https://peertube.social${v.account.avatar.path}` : null,
-        thumb: v.previewPath ? `https://peertube.social${v.previewPath}` : `https://picsum.photos/seed/${v.id}/640/360`,
-        duration: formatDuration(v.duration),
-        views: formatViews(v.views),
-        url: `https://peertube.social/videos/watch/${v.uuid}`,
-        platform: 'PeerTube',
-        uploaded: timeAgo(v.publishedAt)
-      }));
+    const r = await fetch(`https://peertube.social/api/v1/search/videos?search=${encodeURIComponent(q)}&count=12&sort=-trending&nsfw=false`,
+      {signal:AbortSignal.timeout(6000)});
+    if (r.ok) {
+      const d = await r.json();
+      if (d.data?.length) {
+        C.videos = d.data.map(v=>({
+          id:v.id, title:v.name,
+          channel:v.account?.displayName||'Creator',
+          thumb:v.previewPath?`https://peertube.social${v.previewPath}`:`https://picsum.photos/seed/${v.id}/640/360`,
+          dur:fmtDur(v.duration), views:fmtViews(v.views),
+          url:`https://peertube.social/videos/watch/${v.uuid}`,
+          plat:'PeerTube', uploaded:timeAgo(v.publishedAt)
+        }));
+        return;
+      }
     }
-  } catch(e) {}
-  
-  // Fallback with Picsum-based fake video cards + YouTube search link
-  if (!cachedResults.videos.length) {
-    cachedResults.videos = Array.from({length:8}, (_, i) => ({
-      id: i,
-      title: `${q} — Complete Guide ${i > 0 ? '#' + (i+1) : ''}`,
-      channel: ['TechVision','Science Now','Explorer','DeepDive'][i%4],
-      thumb: `https://picsum.photos/seed/${encoded}${i}/640/360`,
-      duration: `${Math.floor(Math.random()*20)+2}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`,
-      views: `${Math.floor(Math.random()*900+100)}K views`,
-      url: `https://www.youtube.com/results?search_query=${encoded}`,
-      platform: 'YouTube',
-      uploaded: ['2 hours ago','yesterday','3 days ago','1 week ago'][i%4]
-    }));
-  }
+  } catch(e){}
+  // YouTube search fallback (real link to YouTube search results)
+  const ytQ = encodeURIComponent(q);
+  C.videos = Array.from({length:8},(_,i)=>({
+    id:i, title:`${q}${i>0?' — Part '+(i+1):''}`,
+    channel:['TechVision','ScienceNow','DeepDive','Explorer','Insight','Mindframe'][i%6],
+    thumb:`https://picsum.photos/seed/${enc(q+'v'+i)}/640/360`,
+    dur:`${~~(Math.random()*22)+3}:${String(~~(Math.random()*60)).padStart(2,'0')}`,
+    views:`${~~(Math.random()*900+50)}K views`,
+    url:`https://www.youtube.com/results?search_query=${ytQ}`,
+    plat:'YouTube', uploaded:['1h ago','3h ago','yesterday','3 days ago','1 week ago','2 wks ago'][i%6]
+  }));
 }
 
-// ─── NEWS ─────────────────────────────────────────────────────────
-async function fetchNews(q) {
-  // GNews free tier doesn't need a key for basic search; use a CORS-friendly alternative
-  // We'll use web results filtered as news + supplement with Groq news results
-  // If web already populated news, use that; else use Groq results tagged news
-  if (!cachedResults.news.length) {
-    cachedResults.news = (cachedResults.web || []).filter(r => r.type === 'news').map(r => ({
-      ...r,
-      image: `https://picsum.photos/seed/${encodeURIComponent(r.domain||q)}/300/200`
-    }));
-  }
-  // Always ensure we have some news
-  if (cachedResults.news.length < 3) {
-    const sources = ['Reuters','BBC News','AP News','The Guardian','TechCrunch','Bloomberg','Wired','CNN'];
-    cachedResults.news = Array.from({length:8}, (_, i) => ({
-      title: `${q}: ${['Latest developments and expert analysis','Breaking: New findings emerge','What experts are saying about','Key facts and updates on','Investigation reveals new details about','The complete story behind'][i%6]} ${q}`,
-      url: `https://news.google.com/search?q=${encodeURIComponent(q)}`,
-      domain: sources[i%8].toLowerCase().replace(' ','')+'.com',
-      snippet: `Latest news and updates on ${q}. Experts weigh in on recent developments and what they mean for the future.`,
-      published: ['1h ago','3h ago','5h ago','12h ago','Yesterday','2 days ago','3 days ago','1 week ago'][i],
-      image: `https://picsum.photos/seed/${encodeURIComponent(q+i)}/300/200`,
-      source: sources[i%8]
-    }));
-  }
-}
-
-// ─── RENDER ───────────────────────────────────────────────────────
-function showLoading() {
-  document.getElementById('main-results').innerHTML = `
+// ═══ RENDER ═══
+function loading() {
+  document.getElementById('main').innerHTML = `
     <div class="loading-wrap">
       <div class="spinner"></div>
-      <div class="loading-text">Searching for "${currentQuery}"...</div>
+      <div class="loading-txt">Searching for "${Q}"...</div>
     </div>`;
 }
 
-function renderCurrentTab() {
-  switch(currentTab) {
-    case 'all': renderAll(); break;
+function renderTab() {
+  switch(TAB) {
+    case 'all':    renderAll();    break;
     case 'images': renderImages(); break;
     case 'videos': renderVideos(); break;
-    case 'news': renderNews(); break;
+    case 'news':   renderNews();   break;
   }
 }
 
 function renderAll() {
-  const container = document.getElementById('main-results');
-  const webResults = cachedResults.web.filter(r => r.type !== 'knowledge');
-  const knowledge = cachedResults.web.find(r => r.type === 'knowledge');
-  const featured = webResults.find(r => r.featured);
-  const regular = webResults.filter(r => !r.featured);
-  const images = cachedResults.images.slice(0, 4);
-  const videos = cachedResults.videos.slice(0, 2);
+  const M = document.getElementById('main');
+  const kp   = C.web.find(r=>r.type==='knowledge');
+  const web  = C.web.filter(r=>r.type!=='knowledge');
+  const feat = web.find(r=>r.featured);
+  const rest = web.filter(r=>!r.featured);
+  const imgs = C.images.slice(0,4);
+  const vids = C.videos.slice(0,2);
 
-  let html = `<div class="results-meta">About ${(Math.random()*500+50).toFixed(0)} million results (${(Math.random()*0.3+0.2).toFixed(2)} seconds)</div>`;
-  
-  // Refinement chips
-  const relatedQueries = generateRelated(currentQuery);
-  html += `<div class="refine-chips">` + relatedQueries.map(r =>
-    `<div class="refine-chip" onclick="quickSearch('${r}')">${r}</div>`).join('') + `</div>`;
+  let h = `<div class="results-meta">About ${rn(50,900)} million results (${(Math.random()*0.4+0.12).toFixed(2)} seconds)</div>`;
+  h += `<div class="refine-row">${related(Q).map(r=>`<div class="r-chip" onclick="qs('${esc(r)}')">${r}</div>`).join('')}</div>`;
 
-  // Featured snippet
-  if (featured) {
-    html += `<div class="featured-snippet">
-      <div class="featured-label">✦ Featured Result</div>
-      <div style="font-weight:600;font-size:1rem;margin-bottom:8px;color:var(--accent2);">${featured.title}</div>
-      <div class="featured-text">${featured.snippet}</div>
-      <div style="margin-top:12px;font-size:0.78rem;color:var(--muted);font-family:var(--mono)">${featured.url}</div>
+  if (kp) {
+    h += `<div class="kp result-anim">
+      <div class="kp-head">${kp.entity||Q}</div>
+      <div class="kp-sub">Overview</div>
+      <div class="kp-desc">${kp.description||''}</div>
+      ${(kp.facts||[]).map(f=>`<div class="kp-row"><div class="kp-k">${f.label}</div><div class="kp-v">${f.value}</div></div>`).join('')}
     </div>`;
   }
 
-  // Knowledge panel
-  if (knowledge) {
-    html += `<div class="knowledge-panel">
-      <div class="kp-title">${knowledge.entity || currentQuery}</div>
-      <div class="kp-type">Search Entity</div>
-      <div class="kp-desc">${knowledge.description || ''}</div>
-      ${(knowledge.facts || []).map(f => `
-        <div class="kp-row">
-          <div class="kp-label">${f.label}</div>
-          <div class="kp-value">${f.value}</div>
-        </div>`).join('')}
+  if (feat) {
+    h += `<div class="feat-card result-anim">
+      <div class="feat-lbl"><span class="feat-dot"></span>Top result</div>
+      <div class="feat-title">${feat.title}</div>
+      <div class="feat-text">${feat.snippet}</div>
+      <a class="feat-url" href="${feat.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${feat.url}</a>
     </div>`;
   }
 
-  // Web results
-  html += `<div class="section-header">
-    <div class="section-title">🌐 Web Results</div>
-  </div>`;
-  html += regular.slice(0,5).map(r => renderWebCard(r)).join('');
+  h += `<div class="sec-hdr"><div class="sec-lbl">Web Results</div></div>`;
+  h += rest.slice(0,5).map((r,i)=>wCard(r,i+1)).join('');
 
-  // Images row
-  if (images.length) {
-    html += `<div class="section-header">
-      <div class="section-title">🖼 Images</div>
-      <button class="section-more" onclick="switchTab('images')">See all images →</button>
+  if (imgs.length) {
+    h += `<div class="sec-hdr">
+      <div class="sec-lbl">Images</div>
+      <button class="sec-more" onclick="switchTab('images')">See all images</button>
     </div>
-    <div class="all-images-row">
-      ${images.map(img => `
-        <div class="image-card" onclick="openLightbox('${img.thumb}','${img.title}','${img.sourceUrl}')">
-          <img src="${img.thumb}" alt="${img.title}" loading="lazy">
-        </div>`).join('')}
+    <div class="inline-imgs">
+      ${imgs.map(img=>`<div class="img-card" onclick="openLB('${img.url}','${esc2(img.title)}','${img.sourceUrl}')">
+        <img src="${img.thumb}" alt="${esc2(img.title)}" loading="lazy">
+      </div>`).join('')}
     </div>`;
   }
 
-  // More web results
-  if (regular.length > 5) {
-    html += `<div style="margin-top:8px;">` + regular.slice(5).map(r => renderWebCard(r)).join('') + `</div>`;
+  if (rest.length > 5) h += rest.slice(5).map((r,i)=>wCard(r,i+6)).join('');
+
+  if (vids.length) {
+    h += `<div class="sec-hdr">
+      <div class="sec-lbl">Videos</div>
+      <button class="sec-more" onclick="switchTab('videos')">See all videos</button>
+    </div>
+    <div class="inline-vids">${vids.map((v,i)=>vCard(v,i)).join('')}</div>`;
   }
 
-  // Videos row
-  if (videos.length) {
-    html += `<div class="section-header">
-      <div class="section-title">▶ Videos</div>
-      <button class="section-more" onclick="switchTab('videos')">See all videos →</button>
-    </div>
-    <div class="all-videos-row">
-      ${videos.map(v => renderVideoCard(v)).join('')}
-    </div>`;
-  }
-
-  // Pagination
-  html += renderPagination(8);
-
-  container.innerHTML = html;
-}
-
-function renderWebCard(r) {
-  const favicon = `https://www.google.com/s2/favicons?domain=${r.domain || r.url}&sz=32`;
-  return `<div class="web-result" onclick="openUrl('${r.url}')">
-    <div class="result-url-row">
-      <img class="result-favicon" src="${favicon}" alt="" onerror="this.style.display='none'">
-      <div class="result-url">${r.url || ''}</div>
-    </div>
-    <a class="result-title" href="${r.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${r.title || 'Untitled'}</a>
-    <div class="result-snippet">${highlightQuery(r.snippet || '', currentQuery)}</div>
-    <div class="result-badges">
-      ${r.domain ? `<span class="badge badge-source">${r.domain}</span>` : ''}
-      ${r.published ? `<span class="badge badge-time">${r.published}</span>` : ''}
-      ${r.type ? `<span class="badge badge-type">${r.type}</span>` : ''}
-    </div>
-  </div>`;
+  h += paginate(8);
+  M.innerHTML = h;
+  M.querySelectorAll('.result-anim').forEach((el,i)=>{ el.style.animationDelay=(i*0.045)+'s'; });
 }
 
 function renderImages() {
-  const container = document.getElementById('main-results');
-  const images = cachedResults.images;
-  if (!images.length) {
-    container.innerHTML = emptyState('No images found');
-    return;
-  }
-  let html = `<div class="results-meta">${images.length} images</div>`;
-  html += `<div class="image-grid">` + images.map(img => `
-    <div class="image-card" onclick="openLightbox('${img.url}','${img.title}','${img.sourceUrl || '#'}')">
-      <img src="${img.thumb}" alt="${img.title}" loading="lazy">
-      <div class="image-card-info">
-        <div class="image-card-title">${img.title}</div>
-        <div class="image-card-src">${img.source || 'Web'}</div>
+  const M = document.getElementById('main');
+  const imgs = C.images;
+  if (!imgs.length) { M.innerHTML = empty('No images found'); return; }
+  let h = `<div class="results-meta">${imgs.length} images for "${Q}"</div>`;
+  h += `<div class="img-grid">${imgs.map((img,i)=>`
+    <div class="img-card result-anim" style="animation-delay:${Math.min(i*0.04,0.6)}s"
+         onclick="openLB('${img.url}','${esc2(img.title)}','${img.sourceUrl}')">
+      <img src="${img.thumb}" alt="${esc2(img.title)}" loading="lazy">
+      <div class="img-info">
+        <div class="img-title">${img.title}</div>
+        <div class="img-src">${img.source}</div>
       </div>
-    </div>`).join('') + `</div>`;
-  container.innerHTML = html;
+    </div>`).join('')}</div>`;
+  M.innerHTML = h;
 }
 
 function renderVideos() {
-  const container = document.getElementById('main-results');
-  const videos = cachedResults.videos;
-  if (!videos.length) {
-    container.innerHTML = emptyState('No videos found');
-    return;
-  }
-  let html = `<div class="results-meta">${videos.length} videos</div>`;
-  html += `<div class="video-grid">` + videos.map(v => renderVideoCard(v)).join('') + `</div>`;
-  container.innerHTML = html;
+  const M = document.getElementById('main');
+  const vids = C.videos;
+  if (!vids.length) { M.innerHTML = empty('No videos found'); return; }
+  let h = `<div class="results-meta">${vids.length} videos for "${Q}"</div>`;
+  h += `<div class="vid-grid">${vids.map((v,i)=>vCard(v,i)).join('')}</div>`;
+  M.innerHTML = h;
 }
 
-function renderVideoCard(v) {
-  return `<div class="video-card" onclick="openUrl('${v.url}')">
-    <div class="video-thumb">
-      <img src="${v.thumb}" alt="${v.title}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${encodeURIComponent(v.title)}/640/360'">
-      <div class="play-overlay"><div class="play-btn-big">▶</div></div>
-      ${v.duration ? `<div class="video-duration">${v.duration}</div>` : ''}
-    </div>
-    <div class="video-info">
-      <div class="video-title">${v.title}</div>
-      <div class="video-channel">
-        <span>📺</span>
-        <span>${v.channel || 'Creator'}</span>
-        ${v.views ? `<span style="color:var(--muted)">· ${v.views}</span>` : ''}
-        ${v.uploaded ? `<span style="color:var(--muted)">· ${v.uploaded}</span>` : ''}
+function renderNews() {
+  const M = document.getElementById('main');
+  const news = C.news;
+  if (!news.length) { M.innerHTML = empty('No news found'); return; }
+  let h = `<div class="results-meta">Latest news for "${Q}"</div>`;
+  h += news.map((n,i)=>`
+    <a class="news-card result-anim" style="animation-delay:${Math.min(i*0.05,0.5)}s"
+       href="${n.url}" target="_blank" rel="noopener">
+      <img class="news-thumb" src="${n.img||`https://picsum.photos/seed/${enc(n.title||'n')}/220/148`}"
+           alt="" loading="lazy" onerror="this.style.display='none'">
+      <div class="news-body">
+        <div class="news-src">${n.source||n.domain||'News'}</div>
+        <div class="news-ttl">${n.title||''}</div>
+        <div class="news-snip">${n.snippet||''}</div>
+        <div class="news-time">${n.published||''}</div>
       </div>
-      <div style="margin-top:6px;font-size:0.72rem;color:var(--muted);font-family:var(--mono)">${v.platform || 'Web'}</div>
+    </a>`).join('');
+  M.innerHTML = h;
+}
+
+function wCard(r, idx) {
+  const fav = `https://www.google.com/s2/favicons?domain=${r.domain||'example.com'}&sz=32`;
+  return `<div class="w-card result-anim" onclick="window.open('${r.url}','_blank','noopener')">
+    <div class="url-row">
+      <img class="favicon" src="${fav}" alt="" onerror="this.style.display='none'">
+      <div class="url-txt">${r.url||''}</div>
+    </div>
+    <a class="w-title" href="${r.url}" target="_blank" rel="noopener"
+       onclick="event.stopPropagation()">${r.title||'Untitled'}</a>
+    <div class="w-snip">${hl(r.snippet||'')}</div>
+    <div class="badges">
+      ${r.domain   ?`<span class="badge b-src">${r.domain}</span>`:''}
+      ${r.published?`<span class="badge b-time">${r.published}</span>`:''}
+      ${r.type     ?`<span class="badge b-type">${r.type}</span>`:''}
     </div>
   </div>`;
 }
 
-function renderNews() {
-  const container = document.getElementById('main-results');
-  const news = cachedResults.news;
-  if (!news.length) {
-    container.innerHTML = emptyState('No news found');
-    return;
-  }
-  let html = `<div class="results-meta">Latest news about "${currentQuery}"</div>`;
-  html += news.map(n => `
-    <a class="news-card" href="${n.url}" target="_blank" rel="noopener">
-      <img class="news-thumb" src="${n.image || `https://picsum.photos/seed/${encodeURIComponent(n.title||'news')}/120/80`}" alt="" loading="lazy" onerror="this.style.display='none'">
-      <div class="news-body">
-        <div class="news-source">${n.source || n.domain || 'News'}</div>
-        <div class="news-title">${n.title}</div>
-        <div class="news-snippet">${n.snippet || ''}</div>
-        <div class="news-time">${n.published || ''}</div>
+function vCard(v, i) {
+  return `<div class="vid-card result-anim" style="animation-delay:${Math.min((i||0)*0.07,0.5)}s"
+       onclick="window.open('${v.url}','_blank','noopener')">
+    <div class="vid-thumb-wrap">
+      <img src="${v.thumb}" alt="${esc2(v.title)}" loading="lazy"
+           onerror="this.src='https://picsum.photos/seed/${enc(v.title||'v')}/640/360'">
+      <div class="vid-overlay"><div class="play-circle"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
+      ${v.dur?`<div class="vid-dur">${v.dur}</div>`:''}
+    </div>
+    <div class="vid-body">
+      <div class="vid-title">${v.title||''}</div>
+      <div class="vid-meta">
+        <span>${v.channel||''}</span>
+        ${v.views   ?`<span>· ${v.views}</span>`:''}
+        ${v.uploaded?`<span>· ${v.uploaded}</span>`:''}
       </div>
-    </a>`).join('');
-  container.innerHTML = html;
+      <div class="vid-plat">${v.plat||'Web'}</div>
+    </div>
+  </div>`;
 }
 
-// ─── PAGINATION ───────────────────────────────────────────────────
-function renderPagination(totalPages) {
-  let html = `<div class="pagination">
-    <div class="page-btn page-btn-wide" onclick="changePage(${currentPage-1})" ${currentPage===1?'style="opacity:.3;pointer-events:none"':''}>← Prev</div>`;
-  for (let i = 1; i <= totalPages; i++) {
-    html += `<div class="page-btn ${i===currentPage?'active':''}" onclick="changePage(${i})">${i}</div>`;
-  }
-  html += `<div class="page-btn page-btn-wide" onclick="changePage(${currentPage+1})">Next →</div>`;
-  html += `</div>`;
-  return html;
+// ═══ PAGINATION ═══
+function paginate(total) {
+  let h = `<div class="pagination">
+    <div class="pg" onclick="chPage(${PAGE-1})" ${PAGE===1?'style="opacity:.3;pointer-events:none"':''}>Prev</div>`;
+  for (let i=1;i<=total;i++) h+=`<div class="pg ${i===PAGE?'active':''}" onclick="chPage(${i})">${i}</div>`;
+  h+=`<div class="pg" onclick="chPage(${PAGE+1})">Next</div></div>`;
+  return h;
 }
+function chPage(p) { if(p<1)return; PAGE=p; loading(); setTimeout(()=>fetchAll(Q),300); }
 
-function changePage(p) {
-  if (p < 1) return;
-  currentPage = p;
-  showLoading();
-  setTimeout(() => fetchAllResults(currentQuery + (p > 1 ? ' page ' + p : '')), 300);
+// ═══ LIGHTBOX ═══
+function openLB(src,title,link) {
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lb-title').textContent = title||'';
+  document.getElementById('lb-link').href = link||src;
+  document.getElementById('lb').classList.add('open');
 }
-
-// ─── HELPERS ──────────────────────────────────────────────────────
-function openUrl(url) {
-  if (!url) return;
-  window.open(url, '_blank', 'noopener');
-}
-
-function openLightbox(src, title, link) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox-title').textContent = title || '';
-  document.getElementById('lightbox-link').href = link || src;
-  document.getElementById('lightbox').classList.add('open');
-}
-
-function closeLightbox(e) {
-  if (!e || e.target === document.getElementById('lightbox') || e.target.classList.contains('lightbox-close')) {
-    document.getElementById('lightbox').classList.remove('open');
+function closeLB(e) {
+  if (!e || e.target.id==='lb' || e.target.classList.contains('lb-close')) {
+    document.getElementById('lb').classList.remove('open');
+    setTimeout(()=>{ document.getElementById('lb-img').src=''; },300);
   }
 }
 
-function toggleSafe() {
-  safeSearch = !safeSearch;
-  const el = document.getElementById('safe-toggle');
-  el.classList.toggle('on', safeSearch);
-}
-
-function applyFilters() {
-  fetchAllResults(currentQuery);
-}
-
-function highlightQuery(text, query) {
-  if (!text || !query) return text;
-  const words = query.split(/\s+/).filter(w => w.length > 2);
-  let result = text;
-  words.forEach(w => {
-    const re = new RegExp(`(${w})`, 'gi');
-    result = result.replace(re, '<mark>$1</mark>');
-  });
-  return result;
-}
-
-function generateRelated(q) {
-  const mods = ['news', 'explained', 'best', 'how to', '2025', 'tutorial', 'examples', 'vs'];
-  return mods.slice(0,5).map(m => `${q} ${m}`).concat([`what is ${q}`, `${q} guide`]).slice(0,6);
-}
-
-function emptyState(msg) {
-  return `<div class="empty-state"><div class="empty-icon">⌕</div><p>${msg}</p></div>`;
-}
-
-function formatDuration(secs) {
-  if (!secs) return '0:00';
-  const m = Math.floor(secs/60);
-  const s = secs%60;
-  return m > 60 ? `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`;
-}
-
-function formatViews(n) {
-  if (!n) return '';
-  if (n >= 1e6) return (n/1e6).toFixed(1)+'M views';
-  if (n >= 1e3) return (n/1e3).toFixed(0)+'K views';
-  return n+' views';
-}
-
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const days = Math.floor(diff/86400000);
-  if (days < 1) return 'today';
-  if (days < 7) return days + 'd ago';
-  if (days < 30) return Math.floor(days/7) + 'w ago';
-  return Math.floor(days/30) + 'mo ago';
-}
-
-function getFallbackResults(q) {
-  return Array.from({length:8}, (_, i) => ({
-    title: `${q} — Result ${i+1}`,
-    url: `https://example.com/result-${i+1}`,
-    snippet: `Comprehensive information about ${q}. This result covers key aspects and provides detailed insights.`,
-    domain: 'example.com',
-    type: ['article','news','official','research'][i%4],
-    published: '2 days ago',
-    featured: i === 0
-  }));
-}
-
-// ─── VOICE SEARCH ─────────────────────────────────────────────────
-function startVoice(inputId) {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert('Voice search is not supported in your browser. Try Chrome or Edge.');
-    return;
-  }
-  const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const rec = new Rec();
-  rec.continuous = false;
-  rec.lang = 'en-US';
-  rec.interimResults = false;
-  rec.onstart = () => isListening = true;
-  rec.onresult = e => {
-    const transcript = e.results[0][0].transcript;
-    document.getElementById(inputId).value = transcript;
-    if (inputId === 'main-search') doSearch();
-    else doSearchFromTop();
+// ═══ VOICE ═══
+function voice(id) {
+  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) { alert('Voice requires Chrome or Edge.'); return; }
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  const r = new SR(); r.lang='en-US'; r.continuous=false; r.interimResults=false;
+  r.onresult = e => {
+    const t = e.results[0][0].transcript;
+    document.getElementById(id).value = t;
+    if (id==='main-search') doSearch(); else doSearchTop();
   };
-  rec.onerror = () => isListening = false;
-  rec.onend = () => isListening = false;
-  rec.start();
+  r.start();
 }
 
-// keyboard shortcut
-document.addEventListener('keydown', e => {
-  if (e.key === '/' && document.getElementById('results-page').style.display !== 'none') {
-    e.preventDefault();
-    document.getElementById('top-search').focus();
-  }
-  if (e.key === 'Escape') closeLightbox();
-});
+// ═══ HELPERS ═══
+function hl(txt) {
+  if (!txt||!Q) return txt;
+  return Q.split(/\s+/).filter(w=>w.length>2).reduce((acc,w)=>
+    acc.replace(new RegExp(`(${w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>'), txt);
+}
+function related(q) {
+  return [`${q} news`,`${q} tutorial`,`what is ${q}`,`${q} 2025`,`how does ${q} work`,`${q} research`];
+}
+function enc(s) { return encodeURIComponent(s||''); }
+function esc(s) { return (s||'').replace(/'/g,"\\'"); }
+function esc2(s){ return (s||'').replace(/"/g,'&quot;'); }
+function empty(msg) { return `<div class="empty-state"><p>${msg}</p></div>`; }
+function fmtDur(s) { if(!s)return''; const m=~~(s/60),sec=s%60; return m>60?`${~~(m/60)}:${String(m%60).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${m}:${String(sec).padStart(2,'0')}`; }
+function fmtViews(n) { if(!n)return''; if(n>=1e6)return(n/1e6).toFixed(1)+'M views'; if(n>=1e3)return~~(n/1e3)+'K views'; return n+' views'; }
+function timeAgo(d) { if(!d)return''; const days=~~((Date.now()-new Date(d))/86400000); return days<1?'today':days<7?days+'d ago':days<30?~~(days/7)+'w ago':~~(days/30)+'mo ago'; }
+function rn(a,b) { return ~~(Math.random()*(b-a)+a); }
+
+function demoResults(q) {
+  const sites = [
+    ['en.wikipedia.org',`/wiki/${q.replace(/\s+/g,'_')}`,'official','Wikipedia'],
+    ['www.britannica.com',`/topic/${q.replace(/\s+/g,'-')}`,'official','Britannica'],
+    ['www.bbc.com',`/news/science-environment`,'news','BBC News'],
+    ['arxiv.org',`/search/?query=${enc(q)}&searchtype=all`,'research','arXiv'],
+    ['www.reddit.com',`/r/technology/search?q=${enc(q)}`,'forum','Reddit'],
+    ['stackoverflow.com',`/search?q=${enc(q)}`,'forum','Stack Overflow'],
+    ['github.com',`/search?q=${enc(q)}`,'official','GitHub'],
+    ['developer.mozilla.org',`/en-US/search?q=${enc(q)}`,'official','MDN'],
+    ['nature.com',`/search?q=${enc(q)}`,'research','Nature'],
+    ['towardsdatascience.com',`/search?q=${enc(q)}`,'article','Towards Data Science'],
+  ];
+  return [
+    {type:'knowledge',entity:q,description:`${q} is a major area with broad applications across multiple disciplines. Demo mode is active — connect your Groq key for live AI-powered results with real article links. This panel would contain a rich overview of the topic. The Groq API provides fast, accurate knowledge synthesis.`,facts:[{label:'Status',value:'Demo mode active'},{label:'Real results',value:'Requires Groq API key'},{label:'Images',value:'Powered by Picsum & Unsplash'},{label:'Videos',value:'Powered by PeerTube & YouTube'},{label:'Key setup',value:'Click "Change key" to add yours'}]},
+    ...sites.map(([dom,path,type,src],i)=>({
+      title:`${q} — ${src}`,
+      url:`https://${dom}${path}`,
+      domain:dom,
+      snippet:`Find information about ${q} on ${src}. Comprehensive resources, articles, and references available.`,
+      type, published:['2h ago','4h ago','today','yesterday','3 days ago'][i%5], featured:i===0
+    }))
+  ];
+}
 </script>
 </body>
 </html>
